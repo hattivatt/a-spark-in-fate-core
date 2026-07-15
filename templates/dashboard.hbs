@@ -1,0 +1,356 @@
+<div class="spark-dashboard">
+  <nav class="spark-tabs">
+    <a class="spark-tab-link {{#if tabStatus.media}}completed{{/if}}" data-tab="media">{{localize "a-spark-in-fate-core.TabMedia"}}</a>
+    <a class="spark-tab-link {{#if tabStatus.genre}}completed{{/if}}" data-tab="genre">{{localize "a-spark-in-fate-core.TabGenre"}}</a>
+    <a class="spark-tab-link {{#if tabStatus.title}}completed{{/if}}" data-tab="title">{{localize "a-spark-in-fate-core.TabTitle"}}</a>
+    <a class="spark-tab-link {{#if tabStatus.issues}}completed{{/if}}" data-tab="issues">{{localize "a-spark-in-fate-core.TabIssues"}}</a>
+    <a class="spark-tab-link {{#if tabStatus.faces}}completed{{/if}}" data-tab="faces">{{localize "a-spark-in-fate-core.TabFaces"}}</a>
+    <a class="spark-tab-link {{#if tabStatus.places}}completed{{/if}}" data-tab="places">{{localize "a-spark-in-fate-core.TabPlaces"}}</a>
+    <a class="spark-tab-link {{#if tabStatus.overview}}completed{{/if}}" data-tab="overview">{{localize "a-spark-in-fate-core.TabOverview"}}</a>
+  </nav>
+
+  <div class="spark-tab-content">
+    {{!-- Вкладка 1: Медиа и вдохновения --}}
+    <div class="tab {{#if (eq activeTab 'media')}}active{{/if}}" data-tab="media">
+      <section class="media-section">
+        <h2>{{localize "a-spark-in-fate-core.MediaSection"}}</h2>
+        <button class="add-media spark-btn" data-action="add-media">{{localize "a-spark-in-fate-core.AddMedia"}}</button>
+        <div class="media-list">
+          {{#each media}}
+             <div class="media-card" data-id="{{this.id}}">
+              <div class="media-image">{{#if this.image}}<img src="{{this.image}}" alt="{{this.title}}">{{else}}<div class="placeholder">{{localize "a-spark-in-fate-core.NoImage"}}</div>{{/if}}</div>
+              <div class="media-title">{{this.title}}</div>
+              <div class="media-creator">({{lookup ../userNamesMap this.createdByUserId}})</div>
+              {{#if this.description}}<div class="media-description">{{this.description}}</div>{{/if}}
+              {{#if ../canGM}}
+                <div class="media-actions">
+                  <button class="edit-media" data-action="edit-media" data-id="{{this.id}}"><i class="fas fa-edit"></i></button>
+                  <button class="delete-media" data-action="delete-media" data-id="{{this.id}}"><i class="fas fa-trash"></i></button>
+                </div>
+              {{/if}}
+              {{#if ../canAddInspiration}}
+                <button class="add-inspiration spark-btn" data-action="add-inspiration" data-media-id="{{this.id}}">{{localize "a-spark-in-fate-core.AddInspiration"}}</button>
+              {{/if}}
+              <div class="inspirations-list">
+                {{#each (lookup ../inspirationsByMedia this.id)}}
+                  <div class="inspiration-item" data-id="{{this.id}}">
+                    <span>{{this.text}}</span>
+                    {{#if ../../canGM}}
+                      <button class="delete-inspiration" data-action="delete-inspiration" data-id="{{this.id}}"><i class="fas fa-trash"></i></button>
+                    {{/if}}
+                  </div>
+                {{/each}}
+              </div>
+            </div>
+          {{/each}}
+        </div>
+      </section>
+    </div>
+
+    {{!-- Вкладка 2: Жанр и факты --}}
+    <div class="tab {{#if (eq activeTab 'genre')}}active{{/if}}" data-tab="genre">
+      <section class="genre-section">
+        <h2>{{localize "a-spark-in-fate-core.GenreSection"}}</h2>
+        <div class="form-group">
+          <label>{{localize "a-spark-in-fate-core.GenreLabel"}}</label>
+          <input type="text" name="genre" value="{{genre.text}}" {{#unless canGM}}disabled{{/unless}}>
+          {{#if canGM}}
+            {{#if genre.worldAspectId}}
+              <button class="spark-btn small delete" data-action="delete-genre-aspect">{{localize "a-spark-in-fate-core.DeleteFromGame"}}</button>
+            {{else}}
+              <button class="spark-btn small" data-action="make-genre-aspect">{{localize "a-spark-in-fate-core.MakeAspect"}}</button>
+            {{/if}}
+          {{/if}}
+        </div>
+      </section>
+
+      <section class="facts-section">
+        <h2>{{localize "a-spark-in-fate-core.FactsSection"}}</h2>
+        {{#if canGM}}
+          <button class="spark-btn" data-action="add-question">{{localize "a-spark-in-fate-core.AddQuestion"}}</button>
+        {{/if}}
+        <div class="questions-list">
+          {{#each questions}}
+            <div class="question-item" data-id="{{this.id}}">
+              <div class="question-header" title="{{this.tooltip}}">
+                <span class="question-number">{{this.order}}.</span>
+                <span class="question-text">{{this.text}}</span>
+                <span class="question-creator">© {{this.creatorName}}</span>
+                {{#if ../canGM}}
+                  <button class="delete-question" data-action="delete-question" data-id="{{this.id}}"><i class="fas fa-trash"></i></button>
+                {{/if}}
+              </div>
+              {{#if this.fact}}
+                <div class="fact-block">
+                  <div class="fact-text">{{this.fact.text}}</div>
+                  <span class="fact-creator">© {{this.factCreatorName}}</span>
+                  {{#if ../canGM}}
+                    <button class="delete-fact spark-btn small" data-action="delete-fact" data-id="{{this.fact.id}}">{{localize "a-spark-in-fate-core.DeleteFact"}}</button>
+                  {{/if}}
+                </div>
+              {{else}}
+                {{#if this.canSetFact}}
+                  <button class="spark-btn small" data-action="set-fact" data-question-id="{{this.id}}">{{localize "a-spark-in-fate-core.SetFact"}}</button>
+                {{/if}}
+              {{/if}}
+            </div>
+          {{/each}}
+        </div>
+      </section>
+
+      <section class="allowances-section">
+        <h2>{{localize "a-spark-in-fate-core.FactAllowances"}}</h2>
+        <div class="allowances-list">
+          {{#each allowances}}
+            <div class="allowance-item {{#if this.isActive}}active{{/if}}">
+              <span class="allowance-user">{{this.userName}}</span>
+              {{#if ../canGM}}
+                <input type="number" class="allowance-input" data-user-id="{{this.userId}}" value="{{this.remaining}}" min="0">
+              {{else}}
+                <span class="allowance-value">{{this.remaining}}</span>
+              {{/if}}
+            </div>
+          {{/each}}
+        </div>
+      </section>
+    </div>
+
+    {{!-- Вкладка 3: Название и искры --}}
+    <div class="tab {{#if (eq activeTab 'title')}}active{{/if}}" data-tab="title">
+      <section class="title-section">
+        <h2>{{localize "a-spark-in-fate-core.TitleSection"}}</h2>
+        <div class="form-group">
+          <label>{{localize "a-spark-in-fate-core.CampaignTitleLabel"}}</label>
+          <input type="text" name="campaignTitle" value="{{campaignTitle.text}}" {{#unless canGM}}disabled{{/unless}}>
+          {{#if canGM}}
+            {{#if campaignTitle.worldAspectId}}
+              <button class="spark-btn small delete" data-action="delete-title-aspect">{{localize "a-spark-in-fate-core.DeleteFromGame"}}</button>
+            {{else}}
+              <button class="spark-btn small" data-action="make-title-aspect">{{localize "a-spark-in-fate-core.MakeAspect"}}</button>
+            {{/if}}
+          {{/if}}
+        </div>
+      </section>
+
+      <section class="sparks-section">
+        <h2>{{localize "a-spark-in-fate-core.SparksSection"}}</h2>
+        <div class="sparks-progress">{{localize "a-spark-in-fate-core.SparksProgress" count=sparksCount target=sparksTarget}}</div>
+        {{#if canGM}}
+          <button class="spark-btn" data-action="add-spark">{{localize "a-spark-in-fate-core.AddSpark"}}</button>
+        {{/if}}
+        <div class="sparks-list">
+          {{#each sparks}}
+            <div class="spark-item" data-id="{{this.id}}" title="{{this.tooltip}}">
+              <span class="spark-number">{{this.order}}.</span>
+              <span class="spark-text">{{this.text}}</span>
+              {{#if ../canGM}}
+                <button class="delete-spark" data-action="delete-spark" data-id="{{this.id}}"><i class="fas fa-trash"></i></button>
+              {{/if}}
+            </div>
+          {{/each}}
+        </div>
+      </section>
+    </div>
+
+    {{!-- Вкладка 4: Проблемы --}}
+    <div class="tab {{#if (eq activeTab 'issues')}}active{{/if}}" data-tab="issues">
+      <div class="issues-columns">
+        {{#each issuesList}}
+          <div class="issue-column" data-type="{{this.type}}">
+            <h2>{{localize (concat "a-spark-in-fate-core.IssueType" this.type)}}</h2>
+            <div class="form-group">
+              <label>{{localize "a-spark-in-fate-core.IssueSpark"}}</label>
+              <select name="issue-spark" data-type="{{this.type}}" {{#unless ../canGM}}disabled{{/unless}}>
+                <option value="">{{localize "a-spark-in-fate-core.SelectSpark"}}</option>
+                {{#each this.sparkOptions}}
+                  <option value="{{this.id}}" {{#if this.disabled}}disabled{{/if}} {{#if this.selected}}selected{{/if}}>{{this.text}}</option>
+                {{/each}}
+              </select>
+            </div>
+            <div class="form-group">
+              <label>{{localize "a-spark-in-fate-core.IssueAspect"}}</label>
+              <input type="text" name="issue-aspect" data-type="{{this.type}}" value="{{this.aspectText}}" {{#unless ../canGM}}disabled{{/unless}}>
+              {{#if ../canGM}}
+                {{#if this.worldAspectName}}
+                  <button class="spark-btn small delete" data-action="delete-issue-aspect" data-type="{{this.type}}">{{localize "a-spark-in-fate-core.DeleteFromGame"}}</button>
+                {{else}}
+                  <button class="spark-btn small" data-action="make-issue-aspect" data-type="{{this.type}}">{{localize "a-spark-in-fate-core.MakeAspect"}}</button>
+                {{/if}}
+              {{/if}}
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+
+    {{!-- Вкладка 5: Действующие лица --}}
+    <div class="tab {{#if (eq activeTab 'faces')}}active{{/if}}" data-tab="faces">
+      <div class="faces-columns">
+        {{#each issueFaces}}
+          <div class="faces-column" data-issue="{{this.type}}">
+            <h2>{{localize (concat "a-spark-in-fate-core.IssueType" this.type)}}</h2>
+            <div class="issue-info">
+              <div class="issue-spark">{{this.sparkText}}</div>
+              <div class="issue-aspect">{{this.aspectText}}</div>
+            </div>
+            {{#each this.roles}}
+              <div class="face-role-block">
+                <h3>{{localize (concat "a-spark-in-fate-core.FaceRole." this.role)}}</h3>
+                {{#if ../../canGM}}
+                  <button class="spark-btn small" data-action="add-face" data-issue="{{../type}}" data-role="{{this.role}}">{{localize "a-spark-in-fate-core.AddFace"}}</button>
+                {{/if}}
+                {{#if this.face}}
+                  <div class="face-card" data-id="{{this.face.id}}">
+                    <div class="face-portrait">{{#if this.face.portrait}}<img src="{{this.face.portrait}}">{{else}}<div class="placeholder"><i class="fas fa-user"></i></div>{{/if}}</div>
+                    <div class="face-name">{{this.face.name}}</div>
+                    <div class="face-skill">{{this.face.mainSkill}}</div>
+                    <div class="face-aspect">{{this.face.aspect}}</div>
+                    <div class="face-trouble">{{this.face.trouble}}</div>
+                    <div class="face-description">{{this.face.description}}</div>
+                    {{#if ../../canGM}}
+                      <div class="face-actions">
+                        <button class="spark-btn small" data-action="edit-face" data-id="{{this.face.id}}">{{localize "a-spark-in-fate-core.Edit"}}</button>
+                        <button class="spark-btn small" data-action="delete-face" data-id="{{this.face.id}}">{{localize "a-spark-in-fate-core.Delete"}}</button>
+                        {{#if this.face.actorId}}
+                          <button class="spark-btn small" data-action="open-actor" data-actor-id="{{this.face.actorId}}">{{localize "a-spark-in-fate-core.OpenActor"}}</button>
+                          <button class="spark-btn small" data-action="update-actor" data-id="{{this.face.id}}">{{localize "a-spark-in-fate-core.UpdateActor"}}</button>
+                        {{else}}
+                          <button class="spark-btn small" data-action="create-actor" data-id="{{this.face.id}}">{{localize "a-spark-in-fate-core.SendToActor"}}</button>
+                        {{/if}}
+                      </div>
+                    {{/if}}
+                  </div>
+                {{else}}
+                  <div class="face-empty">{{localize "a-spark-in-fate-core.NoFace"}}</div>
+                {{/if}}
+              </div>
+            {{/each}}
+          </div>
+        {{/each}}
+      </div>
+    </div>
+
+    {{!-- Вкладка 6: Локации --}}
+    <div class="tab {{#if (eq activeTab 'places')}}active{{/if}}" data-tab="places">
+      <h2>{{localize "a-spark-in-fate-core.PlacesSection"}}</h2>
+      {{#if canGM}}
+        <button class="spark-btn" data-action="add-place">{{localize "a-spark-in-fate-core.AddPlace"}}</button>
+      {{/if}}
+      <div class="places-grid">
+        {{#each places}}
+          <div class="place-card" data-id="{{this.id}}">
+            <div class="place-image">{{#if this.image}}<img src="{{this.image}}">{{else}}<div class="placeholder">{{localize "a-spark-in-fate-core.NoImage"}}</div>{{/if}}</div>
+            <div class="place-name">{{this.name}}</div>
+            <div class="place-aspect">{{this.aspect}}</div>
+            <div class="place-spark">{{this.sparkText}}</div>
+            {{#if ../canGM}}
+              <div class="place-actions">
+                <button class="spark-btn small" data-action="edit-place" data-id="{{this.id}}">{{localize "a-spark-in-fate-core.Edit"}}</button>
+                <button class="spark-btn small" data-action="delete-place" data-id="{{this.id}}">{{localize "a-spark-in-fate-core.Delete"}}</button>
+              </div>
+            {{/if}}
+          </div>
+        {{/each}}
+      </div>
+    </div>
+
+    {{!-- Вкладка 7: Итог --}}
+    <div class="tab {{#if (eq activeTab 'overview')}}active{{/if}}" data-tab="overview">
+      <header class="overview-header">
+        <h1 class="overview-title">{{campaignTitle.text}}</h1>
+        <div class="overview-genre">{{genre.text}}</div>
+      </header>
+
+      <section class="overview-issues">
+        <div class="overview-columns">
+          {{#each overviewIssues}}
+            <div class="overview-column">
+              <h3>{{localize (concat "a-spark-in-fate-core.IssueType" this.type)}}</h3>
+              <div class="overview-spark">{{this.sparkText}}</div>
+              <div class="overview-aspect">{{this.aspectText}}</div>
+
+              <h4>{{localize "a-spark-in-fate-core.Supporter"}}</h4>
+              {{#if this.supporter}}
+                <div class="overview-face-card">
+                  <div class="face-portrait">{{#if this.supporter.portrait}}<img src="{{this.supporter.portrait}}">{{else}}<div class="placeholder"><i class="fas fa-user"></i></div>{{/if}}</div>
+                  <div class="face-name">{{this.supporter.name}}</div>
+                  <div class="face-skill">{{this.supporter.mainSkill}}</div>
+                  <div class="face-aspect">{{this.supporter.aspect}}</div>
+                  <div class="face-trouble">{{this.supporter.trouble}}</div>
+                  <div class="face-description">{{this.supporter.description}}</div>
+                  {{#if this.supporter.actorId}}
+                    <button class="spark-btn small" data-action="open-actor" data-actor-id="{{this.supporter.actorId}}">{{localize "a-spark-in-fate-core.OpenActor"}}</button>
+                  {{/if}}
+                </div>
+              {{else}}
+                <div class="empty">—</div>
+              {{/if}}
+
+              <h4>{{localize "a-spark-in-fate-core.Rejector"}}</h4>
+              {{#if this.rejector}}
+                <div class="overview-face-card">
+                  <div class="face-portrait">{{#if this.rejector.portrait}}<img src="{{this.rejector.portrait}}">{{else}}<div class="placeholder"><i class="fas fa-user"></i></div>{{/if}}</div>
+                  <div class="face-name">{{this.rejector.name}}</div>
+                  <div class="face-skill">{{this.rejector.mainSkill}}</div>
+                  <div class="face-aspect">{{this.rejector.aspect}}</div>
+                  <div class="face-trouble">{{this.rejector.trouble}}</div>
+                  <div class="face-description">{{this.rejector.description}}</div>
+                  {{#if this.rejector.actorId}}
+                    <button class="spark-btn small" data-action="open-actor" data-actor-id="{{this.rejector.actorId}}">{{localize "a-spark-in-fate-core.OpenActor"}}</button>
+                  {{/if}}
+                </div>
+              {{else}}
+                <div class="empty">—</div>
+              {{/if}}
+
+              <h4>{{localize "a-spark-in-fate-core.Place"}}</h4>
+              {{#if this.place}}
+                <div class="overview-place-card">
+                  <div class="place-image">{{#if this.place.image}}<img src="{{this.place.image}}">{{else}}<div class="placeholder">{{localize "a-spark-in-fate-core.NoImage"}}</div>{{/if}}</div>
+                  <div class="place-name">{{this.place.name}}</div>
+                  <div class="place-aspect">{{this.place.aspect}}</div>
+                </div>
+              {{else}}
+                <div class="empty">—</div>
+              {{/if}}
+            </div>
+          {{/each}}
+        </div>
+      </section>
+
+      <section class="overview-other-sparks">
+        <h2>{{localize "a-spark-in-fate-core.OtherSparks"}}</h2>
+        <div class="other-sparks-list">
+          {{#each otherSparks}}
+            <div class="other-spark-item">
+              <div class="spark-text">{{this.text}}</div>
+              {{#if this.place}}
+                <div class="overview-place-card small">
+                  <div class="place-image">{{#if this.place.image}}<img src="{{this.place.image}}">{{else}}<div class="placeholder">{{localize "a-spark-in-fate-core.NoImage"}}</div>{{/if}}</div>
+                  <div class="place-name">{{this.place.name}}</div>
+                  <div class="place-aspect">{{this.place.aspect}}</div>
+                </div>
+              {{/if}}
+            </div>
+          {{/each}}
+        </div>
+      </section>
+
+      <section class="overview-media">
+        <h2>{{localize "a-spark-in-fate-core.MediaAndInspirations"}}</h2>
+        <div class="overview-media-list">
+          {{#each media}}
+            <div class="overview-media-item">
+              <strong>{{this.title}}</strong>
+              <ul>
+                {{#each (lookup ../inspirationsByMedia this.id)}}
+                  <li>{{this.text}}</li>
+                {{/each}}
+              </ul>
+            </div>
+          {{/each}}
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

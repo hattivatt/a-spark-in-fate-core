@@ -1,0 +1,18 @@
+<div class="spark-dialog">
+  <div class="form-group">
+    <label>{{localize "a-spark-in-fate-core.FactUser"}}</label>
+    <select name="userId">
+      {{#each users}}
+        <option value="{{this.id}}" {{#if (eq this.id ../selectedUserId)}}selected{{/if}}>{{this.name}} ({{this.remaining}})</option>
+      {{/each}}
+    </select>
+  </div>
+  <div class="form-group">
+    <label>{{localize "a-spark-in-fate-core.FactText"}}</label>
+    <input type="text" name="text" value="{{text}}" placeholder="{{localize 'a-spark-in-fate-core.FactTextPlaceholder'}}" autofocus>
+  </div>
+  <div class="dialog-buttons">
+    <button type="button" class="save" data-action="save">{{localize "a-spark-in-fate-core.Save"}}</button>
+    <button type="button" class="cancel" data-action="close">{{localize "a-spark-in-fate-core.Cancel"}}</button>
+  </div>
+</div>

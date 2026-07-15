@@ -1,0 +1,27 @@
+<div class="spark-dialog">
+  <div class="form-group">
+    <label>{{localize "a-spark-in-fate-core.PlaceSpark"}}</label>
+    <select name="sparkId">
+      <option value="">{{localize "a-spark-in-fate-core.SelectSpark"}}</option>
+      {{#each sparks}}
+        <option value="{{this.id}}" {{#if (eq this.id ../selectedSparkId)}}selected{{/if}}>{{this.text}}</option>
+      {{/each}}
+    </select>
+  </div>
+  <div class="form-group">
+    <label>{{localize "a-spark-in-fate-core.PlaceName"}}</label>
+    <input type="text" name="name" value="{{name}}" placeholder="{{localize 'a-spark-in-fate-core.PlaceNamePlaceholder'}}">
+  </div>
+  <div class="form-group">
+    <label>{{localize "a-spark-in-fate-core.PlaceAspect"}}</label>
+    <input type="text" name="aspect" value="{{aspect}}" placeholder="{{localize 'a-spark-in-fate-core.PlaceAspectPlaceholder'}}">
+  </div>
+  <div class="form-group">
+    <label>{{localize "a-spark-in-fate-core.Image"}}</label>
+    <file-picker name="image" type="image" value="{{image}}"></file-picker>
+  </div>
+  <div class="dialog-buttons">
+    <button type="button" class="save" data-action="save">{{localize "a-spark-in-fate-core.Save"}}</button>
+    <button type="button" class="cancel" data-action="close">{{localize "a-spark-in-fate-core.Cancel"}}</button>
+  </div>
+</div>

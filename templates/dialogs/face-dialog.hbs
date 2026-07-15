@@ -1,0 +1,35 @@
+<div class="spark-dialog">
+  <div class="form-group">
+    <label>{{localize "a-spark-in-fate-core.FaceName"}}</label>
+    <input type="text" name="name" value="{{name}}" placeholder="{{localize 'a-spark-in-fate-core.FaceNamePlaceholder'}}">
+  </div>
+  <div class="form-group">
+    <label>{{localize "a-spark-in-fate-core.FaceMainSkill"}}</label>
+    <select name="mainSkill">
+      <option value="">{{localize "a-spark-in-fate-core.None"}}</option>
+      {{#each skills}}
+        <option value="{{this}}" {{#if (eq this ../mainSkill)}}selected{{/if}}>{{this}}</option>
+      {{/each}}
+    </select>
+  </div>
+  <div class="form-group">
+    <label>{{localize "a-spark-in-fate-core.FaceDescription"}}</label>
+    <textarea name="description" rows="3">{{description}}</textarea>
+  </div>
+  <div class="form-group">
+    <label>{{localize "a-spark-in-fate-core.FacePortrait"}}</label>
+    <file-picker name="portrait" type="image" value="{{portrait}}"></file-picker>
+  </div>
+  <div class="form-group">
+    <label>{{localize "a-spark-in-fate-core.FaceAspect"}}</label>
+    <input type="text" name="aspect" value="{{aspect}}" placeholder="{{localize 'a-spark-in-fate-core.FaceAspectPlaceholder'}}">
+  </div>
+  <div class="form-group">
+    <label>{{localize "a-spark-in-fate-core.FaceTrouble"}}</label>
+    <input type="text" name="trouble" value="{{trouble}}" placeholder="{{localize 'a-spark-in-fate-core.FaceTroublePlaceholder'}}">
+  </div>
+  <div class="dialog-buttons">
+    <button type="button" class="save" data-action="save">{{localize "a-spark-in-fate-core.Save"}}</button>
+    <button type="button" class="cancel" data-action="close">{{localize "a-spark-in-fate-core.Cancel"}}</button>
+  </div>
+</div>

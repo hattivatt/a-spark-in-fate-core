@@ -1,0 +1,21 @@
+<div class="spark-dialog">
+  <div class="form-group">
+    <label>{{localize "a-spark-in-fate-core.SparkText"}}</label>
+    <input type="text" name="text" value="{{text}}" placeholder="{{localize 'a-spark-in-fate-core.SparkTextPlaceholder'}}" autofocus>
+  </div>
+  <div class="form-group">
+    <label>{{localize "a-spark-in-fate-core.FactsForSpark"}}</label>
+    <div class="fact-checkboxes">
+      {{#each facts}}
+        <label class="checkbox-label">
+          <input type="checkbox" name="factIds" value="{{this.id}}" {{#if this.checked}}checked{{/if}}>
+          {{this.text}}
+        </label>
+      {{/each}}
+    </div>
+  </div>
+  <div class="dialog-buttons">
+    <button type="button" class="save" data-action="save">{{localize "a-spark-in-fate-core.Save"}}</button>
+    <button type="button" class="cancel" data-action="close">{{localize "a-spark-in-fate-core.Cancel"}}</button>
+  </div>
+</div>
