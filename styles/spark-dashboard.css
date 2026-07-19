@@ -595,6 +595,11 @@ section h2 {
 .overview-genre {
   font-size: 1rem;
   color: var(--spark-muted);
+  margin-bottom: 8px;
+}
+
+.overview-header .export-pdf {
+  margin-top: 4px;
 }
 
 .overview-columns {

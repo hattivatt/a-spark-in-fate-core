@@ -118,6 +118,8 @@
     "Place": "Place",
     "OtherSparks": "Other Sparks & Places",
     "MediaAndInspirations": "Media & Inspirations",
+    "ExportPDF": "Export PDF",
+    "PDFPopupBlocked": "Popup blocked. Please allow popups to export PDF.",
     "Save": "Save",
     "Cancel": "Cancel",
     "ConfirmDelete": "Confirm Deletion",

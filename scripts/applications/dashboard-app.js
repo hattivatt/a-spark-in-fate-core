@@ -902,6 +902,190 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
         }
       }).render(true);
     });
+
+    // ── PDF Export ──
+    this._onClick("[data-action='export-pdf']", async () => {
+      await this._exportPdf();
+    });
+  }
+
+  // ─── PDF Export ───
+
+  async _exportPdf() {
+    const context = await this._prepareContext();
+    const html = this._buildPrintHtml(context);
+    const win = window.open("", "_blank", "width=1000,height=750,scrollbars=yes,resizable=yes");
+    if (!win) {
+      ui.notifications.warn(game.i18n.localize("a-spark-in-fate-core.PDFPopupBlocked"));
+      return;
+    }
+    win.document.open();
+    win.document.write(html);
+    win.document.close();
+    await this._waitForImages(win.document);
+    win.focus();
+    setTimeout(() => win.print(), 100);
+  }
+
+  _buildPrintHtml(context) {
+    const title = context.campaignTitle.text || game.i18n.localize("a-spark-in-fate-core.OverviewTitle");
+    const genre = context.genre.text || "";
+    const escapeHtml = (str) => String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    const faceHtml = (face) => {
+      if (!face) return `<div class="empty">—</div>`;
+      const img = face.portrait
+        ? `<img src="${escapeHtml(face.portrait)}" alt="${escapeHtml(face.name)}">`
+        : `<div class="placeholder">${game.i18n.localize("a-spark-in-fate-core.NoImage")}</div>`;
+      return `<div class="print-face-card">
+        <div class="print-portrait">${img}</div>
+        <div class="print-face-name">${escapeHtml(face.name)}</div>
+        <div class="print-field"><span class="print-label">${game.i18n.localize("a-spark-in-fate-core.FaceSkillLabel")}:</span> ${escapeHtml(face.mainSkill)}</div>
+        <div class="print-field"><span class="print-label">${game.i18n.localize("a-spark-in-fate-core.FaceHighConceptLabel")}:</span> ${escapeHtml(face.aspect)}</div>
+        <div class="print-field"><span class="print-label">${game.i18n.localize("a-spark-in-fate-core.FaceTroubleLabel")}:</span> ${escapeHtml(face.trouble)}</div>
+        ${face.description ? `<div class="print-description">${escapeHtml(face.description)}</div>` : ""}
+      </div>`;
+    };
+
+    const placeHtml = (place) => {
+      if (!place) return `<div class="empty">—</div>`;
+      const img = place.image
+        ? `<img src="${escapeHtml(place.image)}" alt="${escapeHtml(place.name)}">`
+        : `<div class="placeholder">${game.i18n.localize("a-spark-in-fate-core.NoImage")}</div>`;
+      return `<div class="print-place-card">
+        <div class="print-portrait">${img}</div>
+        <div class="print-place-name">${escapeHtml(place.name)}</div>
+        <div class="print-field"><span class="print-label">${game.i18n.localize("a-spark-in-fate-core.PlaceAspectLabel")}:</span> ${escapeHtml(place.aspect)}</div>
+      </div>`;
+    };
+
+    const issuesHtml = context.overviewIssues.map(issue => {
+      return `<div class="print-issue">
+        <h2>${game.i18n.localize("a-spark-in-fate-core.IssueType" + issue.type)}</h2>
+        <div class="print-issue-spark">${escapeHtml(issue.sparkText)}</div>
+        <div class="print-field"><span class="print-label">${game.i18n.localize("a-spark-in-fate-core.IssueAspect")}:</span> ${escapeHtml(issue.aspectText)}</div>
+        <h3>${game.i18n.localize("a-spark-in-fate-core.Supporter")}</h3>
+        ${faceHtml(issue.supporter)}
+        <h3>${game.i18n.localize("a-spark-in-fate-core.Rejector")}</h3>
+        ${faceHtml(issue.rejector)}
+        <h3>${game.i18n.localize("a-spark-in-fate-core.Place")}</h3>
+        ${placeHtml(issue.place)}
+      </div>`;
+    }).join("");
+
+    const otherSparksHtml = context.otherSparks.map(spark => {
+      return `<div class="print-other-spark">
+        <div class="print-spark-text">${escapeHtml(spark.text)}</div>
+        ${spark.place ? placeHtml(spark.place) : ""}
+      </div>`;
+    }).join("");
+
+    const factsHtml = context.facts.map(f => {
+      return `<div class="print-fact">
+        <div class="print-fact-question"><strong>${escapeHtml(f.questionText)}</strong></div>
+        <div class="print-fact-answer">${escapeHtml(f.fact.text)}</div>
+      </div>`;
+    }).join("");
+
+    const mediaHtml = context.media.map(m => {
+      const inspirations = (context.inspirationsByMedia[m.id] || []).map(i => `<li>${escapeHtml(i.text)}</li>`).join("");
+      const img = m.image
+        ? `<img src="${escapeHtml(m.image)}" alt="${escapeHtml(m.title)}">`
+        : `<div class="placeholder">${game.i18n.localize("a-spark-in-fate-core.NoImage")}</div>`;
+      return `<div class="print-media-item">
+        <div class="print-media-thumb">${img}</div>
+        <div class="print-media-content">
+          <strong>${escapeHtml(m.title)}</strong>
+          ${inspirations ? `<ul>${inspirations}</ul>` : ""}
+        </div>
+      </div>`;
+    }).join("");
+
+    return `<!DOCTYPE html>
+<html lang="${game.i18n.lang}">
+<head>
+  <meta charset="utf-8">
+  <title>${escapeHtml(title)}</title>
+  <style>
+    @page { margin: 1.5cm; }
+    body { font-family: Georgia, "Times New Roman", serif; font-size: 11pt; line-height: 1.4; color: #1a1a1a; background: #fff; }
+    h1 { text-align: center; font-size: 22pt; margin: 0 0 6px; }
+    .print-genre { text-align: center; font-size: 13pt; color: #555; margin-bottom: 20px; }
+    h2 { font-size: 14pt; color: #4a3b2a; border-bottom: 1px solid #d4c5b0; padding-bottom: 4px; margin-top: 18px; }
+    h3 { font-size: 12pt; color: #6b4c3a; margin: 12px 0 6px; }
+    .print-issue { flex: 1 1 30%; min-width: 220px; max-width: 100%; break-inside: auto; }
+    .print-issue-spark { background: #f9f7f2; border: 1px solid #d4c5b0; border-left: 3px solid #c9a66b; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
+    .print-field { margin-bottom: 4px; }
+    .print-label { font-weight: bold; color: #6b4c3a; }
+    .print-face-card, .print-place-card { background: #fff; border: 1px solid #d4c5b0; border-radius: 6px; padding: 8px; margin-bottom: 8px; break-inside: avoid; }
+    .print-face-name, .print-place-name { font-weight: bold; margin-bottom: 4px; }
+    .print-portrait { width: 100px; height: 100px; border-radius: 4px; overflow: hidden; background: #000; margin-bottom: 8px; }
+    .print-portrait img { width: 100%; height: 100%; object-fit: contain; display: block; }
+    .print-portrait .placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #e8e0d4; color: #444; }
+    .print-description { margin-top: 6px; font-style: italic; font-size: 10pt; color: #555; background: #f9f7f2; border: 1px solid #d4c5b0; border-left: 3px solid #c9a66b; border-radius: 6px; padding: 6px 8px; }
+    .print-other-spark { background: #f9f7f2; border: 1px solid #d4c5b0; border-radius: 6px; padding: 8px; margin-bottom: 8px; break-inside: avoid; }
+    .print-spark-text { font-weight: bold; margin-bottom: 6px; }
+    .print-fact { background: #fff; border: 1px solid #d4c5b0; border-left: 3px solid #c9a66b; border-radius: 6px; padding: 6px 8px; margin-bottom: 6px; }
+    .print-fact-question { color: #555; font-size: 10pt; margin-bottom: 4px; }
+    .print-fact-answer { font-weight: bold; }
+    .print-media-item { display: flex; gap: 10px; align-items: flex-start; background: #fff; border: 1px solid #d4c5b0; border-radius: 6px; padding: 8px; margin-bottom: 8px; break-inside: avoid; }
+    .print-media-thumb { width: 60px; height: 60px; border-radius: 4px; overflow: hidden; background: #000; flex: 0 0 auto; }
+    .print-media-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; }
+    .print-media-thumb .placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #e8e0d4; color: #444; }
+    .print-media-content { flex: 1; }
+    .print-media-content ul { margin: 4px 0 0 16px; }
+    .empty { color: #777; font-style: italic; }
+    .print-section { margin-bottom: 16px; }
+    .print-grid { display: flex; flex-wrap: wrap; gap: 12px; }
+    h2 { break-after: avoid; }
+    h3 { break-after: avoid; }
+  </style>
+</head>
+<body>
+  <h1>${escapeHtml(title)}</h1>
+  ${genre ? `<div class="print-genre">${escapeHtml(genre)}</div>` : ""}
+
+  <div class="print-section">
+    <h2>${game.i18n.localize("a-spark-in-fate-core.TabIssues")}</h2>
+    <div class="print-grid">
+      ${issuesHtml}
+    </div>
+  </div>
+
+  ${context.otherSparks.length ? `
+  <div class="print-section">
+    <h2>${game.i18n.localize("a-spark-in-fate-core.OtherSparks")}</h2>
+    ${otherSparksHtml}
+  </div>
+  ` : ""}
+
+  ${context.facts.length ? `
+  <div class="print-section">
+    <h2>${game.i18n.localize("a-spark-in-fate-core.FactsSection")}</h2>
+    ${factsHtml}
+  </div>
+  ` : ""}
+
+  ${context.media.length ? `
+  <div class="print-section">
+    <h2>${game.i18n.localize("a-spark-in-fate-core.MediaAndInspirations")}</h2>
+    ${mediaHtml}
+  </div>
+  ` : ""}
+</body>
+</html>`;
+  }
+
+  _waitForImages(doc) {
+    const images = Array.from(doc.images);
+    const promises = images.map(img => {
+      if (img.complete && img.naturalHeight !== 0) return Promise.resolve();
+      return new Promise(resolve => {
+        img.addEventListener("load", resolve, { once: true });
+        img.addEventListener("error", resolve, { once: true });
+      });
+    });
+    return Promise.all(promises);
   }
 
   _onClick(selector, handler) {
