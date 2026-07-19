@@ -1,8 +1,9 @@
 export class SparkDialog extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
   static DEFAULT_OPTIONS = {
     tag: "form",
-    window: { title: "a-spark-in-fate-core.CreateSpark", icon: "fas fa-fire" },
-    position: { width: 500 }
+    classes: ["spark-dialog-app"],
+    window: { title: "a-spark-in-fate-core.CreateSpark", icon: "fas fa-fire", resizable: true },
+    position: { width: 600, height: 520 }
   };
 
   static PARTS = {

@@ -180,6 +180,19 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
       return { ...p, sparkText: spark?.text || "" };
     });
 
+    // Facts for overview
+    const facts = (state.factQuestions || []).filter(q => q.fact).map(q => {
+      const questionText = q.text;
+      const questionCreatorName = getUserName(q.createdByUserId);
+      const factCreatorName = getUserName(q.fact.createdByUserId);
+      return {
+        questionText,
+        questionCreatorName,
+        fact: q.fact,
+        factCreatorName
+      };
+    });
+
     // Overview
     const overviewIssues = ["legacy", "current", "impending"].map(type => {
       const issue = state.issues[type];
@@ -235,6 +248,7 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
       issuesList,
       issueFaces,
       places,
+      facts,
       overviewIssues,
       otherSparks,
       userNamesMap,
@@ -433,6 +447,28 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
         }
       }).render(true);
     });
+    this._onClick("[data-action='edit-question']", async event => {
+      const id = event.currentTarget.dataset.id;
+      const state = getState();
+      const question = state.factQuestions.find(fq => fq.id === id);
+      if (!question || !Permissions.canDeleteFactQuestion()) return;
+      new QuestionDialog({
+        inspirations: state.inspirations,
+        question,
+        onSave: async ({ inspirationIds, text }) => {
+          await updateState(s => {
+            const q = s.factQuestions.find(fq => fq.id === id);
+            if (q) {
+              q.text = text;
+              q.inspirationIds = inspirationIds;
+              q.updatedAt = timestamp();
+            }
+            return s;
+          });
+          this.render(false);
+        }
+      }).render(true);
+    });
     this._onClick("[data-action='delete-question']", async event => {
       const id = event.currentTarget.dataset.id;
       if (!Permissions.canDeleteFactQuestion()) return;
@@ -495,6 +531,31 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
             const a = s.factAllowances.find(x => x.userId === targetUserId);
             if (a) a.remaining = Math.max(0, a.remaining - 1);
             s.lastFactSetByUserId = targetUserId;
+            return s;
+          });
+          this.render(false);
+        }
+      }).render(true);
+    });
+    this._onClick("[data-action='edit-fact']", async event => {
+      const id = event.currentTarget.dataset.id;
+      const state = getState();
+      let factQuestion = null;
+      let fact = null;
+      for (const q of state.factQuestions) {
+        if (q.fact?.id === id) { factQuestion = q; fact = q.fact; break; }
+      }
+      if (!fact || !Permissions.canEditFact()) return;
+      new FactDialog({
+        users: [{ id: fact.createdByUserId, name: getUserName(fact.createdByUserId), remaining: 0 }],
+        fact,
+        onSave: async ({ text }) => {
+          await updateState(s => {
+            const target = s.factQuestions.find(q => q.id === factQuestion.id);
+            if (target?.fact) {
+              target.fact.text = text;
+              target.fact.updatedAt = timestamp();
+            }
             return s;
           });
           this.render(false);
@@ -579,6 +640,29 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
               createdByUserId: getCurrentUserId(),
               createdAt: timestamp()
             });
+            return s;
+          });
+          this.render(false);
+        }
+      }).render(true);
+    });
+    this._onClick("[data-action='edit-spark']", async event => {
+      const id = event.currentTarget.dataset.id;
+      const state = getState();
+      const spark = state.sparks.find(s => s.id === id);
+      if (!spark || !Permissions.canEditSpark()) return;
+      const facts = state.factQuestions.filter(q => q.fact).map(q => q.fact);
+      new SparkDialog({
+        facts,
+        spark,
+        onSave: async ({ text, factIds }) => {
+          await updateState(s => {
+            const sp = s.sparks.find(x => x.id === id);
+            if (sp) {
+              sp.text = text;
+              sp.factIds = factIds;
+              sp.updatedAt = timestamp();
+            }
             return s;
           });
           this.render(false);

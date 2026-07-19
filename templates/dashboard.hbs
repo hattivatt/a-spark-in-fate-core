@@ -77,7 +77,8 @@
                 <span class="question-text">{{this.text}}</span>
                 <span class="question-creator">© {{this.creatorName}}</span>
                 {{#if ../canGM}}
-                  <button class="delete-question" data-action="delete-question" data-id="{{this.id}}"><i class="fas fa-trash"></i></button>
+                  <button class="edit-question" data-action="edit-question" data-id="{{this.id}}" title="{{localize 'a-spark-in-fate-core.Edit'}}"><i class="fas fa-edit"></i></button>
+                  <button class="delete-question" data-action="delete-question" data-id="{{this.id}}" title="{{localize 'a-spark-in-fate-core.Delete'}}"><i class="fas fa-trash"></i></button>
                 {{/if}}
               </div>
               {{#if this.fact}}
@@ -85,7 +86,10 @@
                   <div class="fact-text">{{this.fact.text}}</div>
                   <span class="fact-creator">© {{this.factCreatorName}}</span>
                   {{#if ../canGM}}
-                    <button class="delete-fact spark-btn small" data-action="delete-fact" data-id="{{this.fact.id}}">{{localize "a-spark-in-fate-core.DeleteFact"}}</button>
+                    <div class="fact-actions">
+                      <button class="spark-btn small" data-action="edit-fact" data-id="{{this.fact.id}}">{{localize "a-spark-in-fate-core.Edit"}}</button>
+                      <button class="delete-fact spark-btn small" data-action="delete-fact" data-id="{{this.fact.id}}">{{localize "a-spark-in-fate-core.DeleteFact"}}</button>
+                    </div>
                   {{/if}}
                 </div>
               {{else}}
@@ -144,7 +148,8 @@
               <span class="spark-number">{{this.order}}.</span>
               <span class="spark-text">{{this.text}}</span>
               {{#if ../canGM}}
-                <button class="delete-spark" data-action="delete-spark" data-id="{{this.id}}"><i class="fas fa-trash"></i></button>
+                <button class="edit-spark" data-action="edit-spark" data-id="{{this.id}}" title="{{localize 'a-spark-in-fate-core.Edit'}}"><i class="fas fa-edit"></i></button>
+                <button class="delete-spark" data-action="delete-spark" data-id="{{this.id}}" title="{{localize 'a-spark-in-fate-core.Delete'}}"><i class="fas fa-trash"></i></button>
               {{/if}}
             </div>
           {{/each}}
@@ -203,10 +208,10 @@
                   <div class="face-card" data-id="{{this.face.id}}">
                     <div class="face-portrait">{{#if this.face.portrait}}<img src="{{this.face.portrait}}">{{else}}<div class="placeholder"><i class="fas fa-user"></i></div>{{/if}}</div>
                     <div class="face-name">{{this.face.name}}</div>
-                    <div class="face-skill">{{this.face.mainSkill}}</div>
-                    <div class="face-aspect">{{this.face.aspect}}</div>
-                    <div class="face-trouble">{{this.face.trouble}}</div>
-                    <div class="face-description">{{this.face.description}}</div>
+                    <div class="face-field"><span class="field-label">{{localize "a-spark-in-fate-core.FaceSkillLabel"}}:</span> {{this.face.mainSkill}}</div>
+                    <div class="face-field"><span class="field-label">{{localize "a-spark-in-fate-core.FaceHighConceptLabel"}}:</span> {{this.face.aspect}}</div>
+                    <div class="face-field"><span class="field-label">{{localize "a-spark-in-fate-core.FaceTroubleLabel"}}:</span> {{this.face.trouble}}</div>
+                    <div class="face-description-block">{{this.face.description}}</div>
                     {{#if ../../canGM}}
                       <div class="face-actions">
                         <button class="spark-btn small" data-action="edit-face" data-id="{{this.face.id}}">{{localize "a-spark-in-fate-core.Edit"}}</button>
@@ -241,7 +246,7 @@
           <div class="place-card" data-id="{{this.id}}">
             <div class="place-image">{{#if this.image}}<img src="{{this.image}}">{{else}}<div class="placeholder">{{localize "a-spark-in-fate-core.NoImage"}}</div>{{/if}}</div>
             <div class="place-name">{{this.name}}</div>
-            <div class="place-aspect">{{this.aspect}}</div>
+            <div class="place-aspect"><span class="field-label">{{localize "a-spark-in-fate-core.PlaceAspectLabel"}}:</span> {{this.aspect}}</div>
             <div class="place-spark">{{this.sparkText}}</div>
             {{#if ../canGM}}
               <div class="place-actions">
@@ -266,18 +271,18 @@
           {{#each overviewIssues}}
             <div class="overview-column">
               <h3>{{localize (concat "a-spark-in-fate-core.IssueType" this.type)}}</h3>
-              <div class="overview-spark">{{this.sparkText}}</div>
-              <div class="overview-aspect">{{this.aspectText}}</div>
+              <div class="overview-issue-spark">{{this.sparkText}}</div>
+              <div class="overview-issue-aspect"><span class="field-label">{{localize "a-spark-in-fate-core.IssueAspect"}}:</span> {{this.aspectText}}</div>
 
               <h4>{{localize "a-spark-in-fate-core.Supporter"}}</h4>
               {{#if this.supporter}}
                 <div class="overview-face-card">
                   <div class="face-portrait">{{#if this.supporter.portrait}}<img src="{{this.supporter.portrait}}">{{else}}<div class="placeholder"><i class="fas fa-user"></i></div>{{/if}}</div>
                   <div class="face-name">{{this.supporter.name}}</div>
-                  <div class="face-skill">{{this.supporter.mainSkill}}</div>
-                  <div class="face-aspect">{{this.supporter.aspect}}</div>
-                  <div class="face-trouble">{{this.supporter.trouble}}</div>
-                  <div class="face-description">{{this.supporter.description}}</div>
+                  <div class="face-field"><span class="field-label">{{localize "a-spark-in-fate-core.FaceSkillLabel"}}:</span> {{this.supporter.mainSkill}}</div>
+                  <div class="face-field"><span class="field-label">{{localize "a-spark-in-fate-core.FaceHighConceptLabel"}}:</span> {{this.supporter.aspect}}</div>
+                  <div class="face-field"><span class="field-label">{{localize "a-spark-in-fate-core.FaceTroubleLabel"}}:</span> {{this.supporter.trouble}}</div>
+                  <div class="face-description-block">{{this.supporter.description}}</div>
                   {{#if this.supporter.actorId}}
                     <button class="spark-btn small" data-action="open-actor" data-actor-id="{{this.supporter.actorId}}">{{localize "a-spark-in-fate-core.OpenActor"}}</button>
                   {{/if}}
@@ -291,10 +296,10 @@
                 <div class="overview-face-card">
                   <div class="face-portrait">{{#if this.rejector.portrait}}<img src="{{this.rejector.portrait}}">{{else}}<div class="placeholder"><i class="fas fa-user"></i></div>{{/if}}</div>
                   <div class="face-name">{{this.rejector.name}}</div>
-                  <div class="face-skill">{{this.rejector.mainSkill}}</div>
-                  <div class="face-aspect">{{this.rejector.aspect}}</div>
-                  <div class="face-trouble">{{this.rejector.trouble}}</div>
-                  <div class="face-description">{{this.rejector.description}}</div>
+                  <div class="face-field"><span class="field-label">{{localize "a-spark-in-fate-core.FaceSkillLabel"}}:</span> {{this.rejector.mainSkill}}</div>
+                  <div class="face-field"><span class="field-label">{{localize "a-spark-in-fate-core.FaceHighConceptLabel"}}:</span> {{this.rejector.aspect}}</div>
+                  <div class="face-field"><span class="field-label">{{localize "a-spark-in-fate-core.FaceTroubleLabel"}}:</span> {{this.rejector.trouble}}</div>
+                  <div class="face-description-block">{{this.rejector.description}}</div>
                   {{#if this.rejector.actorId}}
                     <button class="spark-btn small" data-action="open-actor" data-actor-id="{{this.rejector.actorId}}">{{localize "a-spark-in-fate-core.OpenActor"}}</button>
                   {{/if}}
@@ -308,7 +313,7 @@
                 <div class="overview-place-card">
                   <div class="place-image">{{#if this.place.image}}<img src="{{this.place.image}}">{{else}}<div class="placeholder">{{localize "a-spark-in-fate-core.NoImage"}}</div>{{/if}}</div>
                   <div class="place-name">{{this.place.name}}</div>
-                  <div class="place-aspect">{{this.place.aspect}}</div>
+                  <div class="place-aspect"><span class="field-label">{{localize "a-spark-in-fate-core.PlaceAspectLabel"}}:</span> {{this.place.aspect}}</div>
                 </div>
               {{else}}
                 <div class="empty">—</div>
@@ -328,9 +333,21 @@
                 <div class="overview-place-card small">
                   <div class="place-image">{{#if this.place.image}}<img src="{{this.place.image}}">{{else}}<div class="placeholder">{{localize "a-spark-in-fate-core.NoImage"}}</div>{{/if}}</div>
                   <div class="place-name">{{this.place.name}}</div>
-                  <div class="place-aspect">{{this.place.aspect}}</div>
+                  <div class="place-aspect"><span class="field-label">{{localize "a-spark-in-fate-core.PlaceAspectLabel"}}:</span> {{this.place.aspect}}</div>
                 </div>
               {{/if}}
+            </div>
+          {{/each}}
+        </div>
+      </section>
+
+      <section class="overview-facts">
+        <h2>{{localize "a-spark-in-fate-core.FactsSection"}}</h2>
+        <div class="overview-facts-list">
+          {{#each facts}}
+            <div class="overview-fact-item">
+              <div class="overview-fact-question"><strong>{{this.questionText}}</strong> <span class="overview-fact-creator">© {{this.questionCreatorName}}</span></div>
+              <div class="overview-fact-answer">{{this.fact.text}} <span class="overview-fact-creator">© {{this.factCreatorName}}</span></div>
             </div>
           {{/each}}
         </div>
@@ -341,12 +358,15 @@
         <div class="overview-media-list">
           {{#each media}}
             <div class="overview-media-item">
-              <strong>{{this.title}}</strong>
-              <ul>
-                {{#each (lookup ../inspirationsByMedia this.id)}}
-                  <li>{{this.text}}</li>
-                {{/each}}
-              </ul>
+              <div class="overview-media-thumb">{{#if this.image}}<img src="{{this.image}}">{{else}}<div class="placeholder"><i class="fas fa-image"></i></div>{{/if}}</div>
+              <div class="overview-media-content">
+                <strong>{{this.title}}</strong>
+                <ul>
+                  {{#each (lookup ../inspirationsByMedia this.id)}}
+                    <li>{{this.text}}</li>
+                  {{/each}}
+                </ul>
+              </div>
             </div>
           {{/each}}
         </div>

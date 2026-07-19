@@ -7,9 +7,9 @@
     <label>{{localize "a-spark-in-fate-core.FactsForSpark"}}</label>
     <div class="fact-checkboxes">
       {{#each facts}}
-        <label class="checkbox-label">
+        <label class="fact-checkbox-item checkbox-label">
           <input type="checkbox" name="factIds" value="{{this.id}}" {{#if this.checked}}checked{{/if}}>
-          {{this.text}}
+          <span class="fact-checkbox-text">{{this.text}}</span>
         </label>
       {{/each}}
     </div>
