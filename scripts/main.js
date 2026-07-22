@@ -32,7 +32,8 @@ function addSceneControlButton(controls) {
   const toolDef = {
     name: "spark-dashboard",
     title: game.i18n.localize("a-spark-in-fate-core.OpenDashboard"),
-    icon: "fas fa-fire",
+    // Use the explicit Font Awesome 6+ style prefix for compatibility with both v13 and v14.
+    icon: "fa-solid fa-fire",
     onChange: (event, active) => {
       if (active) openDashboard();
     },
