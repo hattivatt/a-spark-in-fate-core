@@ -45,6 +45,6 @@
     }
   ],
   "url": "https://github.com/yourname/a-spark-in-fate-core",
-  "manifest": "",
-  "download": ""
+  "manifest": "https://github.com/hattivatt/a-spark-in-fate-core/releases/download/1.0.0/module.json",
+  "download": "https://github.com/hattivatt/a-spark-in-fate-core/releases/download/1.0.0/module.zip"
 }
