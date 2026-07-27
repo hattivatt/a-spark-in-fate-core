@@ -202,7 +202,9 @@
               <div class="face-role-block">
                 <h3>{{localize (concat "a-spark-in-fate-core.FaceRole." this.role)}}</h3>
                 {{#if ../../canGM}}
-                  <button class="spark-btn small" data-action="add-face" data-issue="{{../type}}" data-role="{{this.role}}">{{localize "a-spark-in-fate-core.AddFace"}}</button>
+                  {{#unless this.face}}
+                    <button class="spark-btn small" data-action="add-face" data-issue="{{../type}}" data-role="{{this.role}}">{{localize "a-spark-in-fate-core.AddFace"}}</button>
+                  {{/unless}}
                 {{/if}}
                 {{#if this.face}}
                   <div class="face-card" data-id="{{this.face.id}}">
