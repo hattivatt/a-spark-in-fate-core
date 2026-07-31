@@ -1,11 +1,16 @@
 <div class="spark-dialog">
   <div class="form-group">
     <label>{{localize "a-spark-in-fate-core.FactUser"}}</label>
-    <select name="userId">
-      {{#each users}}
-        <option value="{{this.id}}" {{#if (eq this.id ../selectedUserId)}}selected{{/if}}>{{this.name}} ({{this.remaining}})</option>
-      {{/each}}
-    </select>
+    {{#if lockUser}}
+      <div class="locked-user">{{lockedUser.name}}</div>
+      <input type="hidden" name="userId" value="{{lockedUser.id}}">
+    {{else}}
+      <select name="userId">
+        {{#each users}}
+          <option value="{{this.id}}" {{#if (eq this.id ../selectedUserId)}}selected{{/if}}>{{this.name}} ({{this.remaining}})</option>
+        {{/each}}
+      </select>
+    {{/if}}
   </div>
   <div class="form-group">
     <label>{{localize "a-spark-in-fate-core.FactText"}}</label>

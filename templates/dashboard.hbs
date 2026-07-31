@@ -14,7 +14,9 @@
     <div class="tab {{#if (eq activeTab 'media')}}active{{/if}}" data-tab="media">
       <section class="media-section">
         <h2>{{localize "a-spark-in-fate-core.MediaSection"}}</h2>
-        <button class="add-media spark-btn" data-action="add-media">{{localize "a-spark-in-fate-core.AddMedia"}}</button>
+        {{#if canAddMedia}}
+          <button class="add-media spark-btn" data-action="add-media">{{localize "a-spark-in-fate-core.AddMedia"}}</button>
+        {{/if}}
         <div class="media-list">
           {{#each media}}
              <div class="media-card" data-id="{{this.id}}">
@@ -28,7 +30,7 @@
                   <button class="delete-media" data-action="delete-media" data-id="{{this.id}}"><i class="fas fa-trash"></i></button>
                 </div>
               {{/if}}
-              {{#if ../canAddInspiration}}
+              {{#if this.canAddInspiration}}
                 <button class="add-inspiration spark-btn" data-action="add-inspiration" data-media-id="{{this.id}}">{{localize "a-spark-in-fate-core.AddInspiration"}}</button>
               {{/if}}
               <div class="inspirations-list">
@@ -66,7 +68,7 @@
 
       <section class="facts-section">
         <h2>{{localize "a-spark-in-fate-core.FactsSection"}}</h2>
-        {{#if canGM}}
+        {{#if canAddQuestion}}
           <button class="spark-btn" data-action="add-question">{{localize "a-spark-in-fate-core.AddQuestion"}}</button>
         {{/if}}
         <div class="questions-list">
@@ -139,7 +141,7 @@
       <section class="sparks-section">
         <h2>{{localize "a-spark-in-fate-core.SparksSection"}}</h2>
         <div class="sparks-progress">{{localize "a-spark-in-fate-core.SparksProgress" count=sparksCount target=sparksTarget}}</div>
-        {{#if canGM}}
+        {{#if canAddSpark}}
           <button class="spark-btn" data-action="add-spark">{{localize "a-spark-in-fate-core.AddSpark"}}</button>
         {{/if}}
         <div class="sparks-list">
@@ -201,7 +203,7 @@
             {{#each this.roles}}
               <div class="face-role-block">
                 <h3>{{localize (concat "a-spark-in-fate-core.FaceRole." this.role)}}</h3>
-                {{#if ../../canGM}}
+                {{#if ../../canAddFace}}
                   {{#unless this.face}}
                     <button class="spark-btn small" data-action="add-face" data-issue="{{../type}}" data-role="{{this.role}}">{{localize "a-spark-in-fate-core.AddFace"}}</button>
                   {{/unless}}
@@ -214,15 +216,17 @@
                     <div class="face-field"><span class="field-label">{{localize "a-spark-in-fate-core.FaceHighConceptLabel"}}:</span> {{this.face.aspect}}</div>
                     <div class="face-field"><span class="field-label">{{localize "a-spark-in-fate-core.FaceTroubleLabel"}}:</span> {{this.face.trouble}}</div>
                     <div class="face-description-block">{{this.face.description}}</div>
-                    {{#if ../../canGM}}
+                    {{#if (or ../../canGM (eq this.face.createdByUserId ../../currentUserId))}}
                       <div class="face-actions">
                         <button class="spark-btn small" data-action="edit-face" data-id="{{this.face.id}}">{{localize "a-spark-in-fate-core.Edit"}}</button>
-                        <button class="spark-btn small" data-action="delete-face" data-id="{{this.face.id}}">{{localize "a-spark-in-fate-core.Delete"}}</button>
-                        {{#if this.face.actorId}}
-                          <button class="spark-btn small" data-action="open-actor" data-actor-id="{{this.face.actorId}}">{{localize "a-spark-in-fate-core.OpenActor"}}</button>
-                          <button class="spark-btn small" data-action="update-actor" data-id="{{this.face.id}}">{{localize "a-spark-in-fate-core.UpdateActor"}}</button>
-                        {{else}}
-                          <button class="spark-btn small" data-action="create-actor" data-id="{{this.face.id}}">{{localize "a-spark-in-fate-core.SendToActor"}}</button>
+                        {{#if ../../canGM}}
+                          <button class="spark-btn small" data-action="delete-face" data-id="{{this.face.id}}">{{localize "a-spark-in-fate-core.Delete"}}</button>
+                          {{#if this.face.actorId}}
+                            <button class="spark-btn small" data-action="open-actor" data-actor-id="{{this.face.actorId}}">{{localize "a-spark-in-fate-core.OpenActor"}}</button>
+                            <button class="spark-btn small" data-action="update-actor" data-id="{{this.face.id}}">{{localize "a-spark-in-fate-core.UpdateActor"}}</button>
+                          {{else}}
+                            <button class="spark-btn small" data-action="create-actor" data-id="{{this.face.id}}">{{localize "a-spark-in-fate-core.SendToActor"}}</button>
+                          {{/if}}
                         {{/if}}
                       </div>
                     {{/if}}
@@ -240,7 +244,7 @@
     {{!-- Вкладка 6: Локации --}}
     <div class="tab {{#if (eq activeTab 'places')}}active{{/if}}" data-tab="places">
       <h2>{{localize "a-spark-in-fate-core.PlacesSection"}}</h2>
-      {{#if canGM}}
+      {{#if canAddPlace}}
         <button class="spark-btn" data-action="add-place">{{localize "a-spark-in-fate-core.AddPlace"}}</button>
       {{/if}}
       <div class="places-grid">
@@ -250,10 +254,12 @@
             <div class="place-name">{{this.name}}</div>
             <div class="place-aspect"><span class="field-label">{{localize "a-spark-in-fate-core.PlaceAspectLabel"}}:</span> {{this.aspect}}</div>
             <div class="place-spark">{{this.sparkText}}</div>
-            {{#if ../canGM}}
+            {{#if (or ../canGM (eq this.createdByUserId ../currentUserId))}}
               <div class="place-actions">
                 <button class="spark-btn small" data-action="edit-place" data-id="{{this.id}}">{{localize "a-spark-in-fate-core.Edit"}}</button>
-                <button class="spark-btn small" data-action="delete-place" data-id="{{this.id}}">{{localize "a-spark-in-fate-core.Delete"}}</button>
+                {{#if ../canGM}}
+                  <button class="spark-btn small" data-action="delete-place" data-id="{{this.id}}">{{localize "a-spark-in-fate-core.Delete"}}</button>
+                {{/if}}
               </div>
             {{/if}}
           </div>

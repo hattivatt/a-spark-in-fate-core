@@ -1,5 +1,11 @@
 const MODULE_ID = "a-spark-in-fate-core";
 const STATE_SETTING = "state";
+const PERM_MEDIA_SETTING = "permMedia";
+const PERM_INSPIRATION_ANY_MEDIA_SETTING = "permInspirationAnyMedia";
+const PERM_FACTS_SETTING = "permFacts";
+const PERM_SPARKS_SETTING = "permSparks";
+const PERM_FACES_SETTING = "permFaces";
+const PERM_PLACES_SETTING = "permPlaces";
 const DEFAULT_STATE_VERSION = 1;
 
 function getDefaultState() {
@@ -25,8 +31,20 @@ function getDefaultState() {
     },
     faces: [],
     places: [],
-    lastFactSetByUserId: null
+    lastFactSetByUserId: null,
+    lastQuestionByUserId: null
   };
 }
 
-export { MODULE_ID, STATE_SETTING, DEFAULT_STATE_VERSION, getDefaultState };
+export {
+  MODULE_ID,
+  STATE_SETTING,
+  PERM_MEDIA_SETTING,
+  PERM_INSPIRATION_ANY_MEDIA_SETTING,
+  PERM_FACTS_SETTING,
+  PERM_SPARKS_SETTING,
+  PERM_FACES_SETTING,
+  PERM_PLACES_SETTING,
+  DEFAULT_STATE_VERSION,
+  getDefaultState
+};

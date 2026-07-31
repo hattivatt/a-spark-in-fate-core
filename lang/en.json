@@ -134,6 +134,22 @@
     "ConfirmDeleteFace": "Delete this face?",
     "ConfirmDeletePlace": "Delete this place?",
     "CannotAddMedia": "You cannot add more media.",
-    "NoFactsRemaining": "You have no remaining facts to set."
+    "NoFactsRemaining": "You have no remaining facts to set.",
+    "RolePlayer": "Player",
+    "RoleTrustedPlayer": "Trusted Player",
+    "RoleAssistantGM": "Assistant Gamemaster",
+    "RoleGamemaster": "Gamemaster",
+    "PermMediaName": "Minimum role: add media & inspirations",
+    "PermMediaHint": "Minimum user role allowed to add media and inspirations on the Media & Inspirations tab.",
+    "PermInspirationAnyMediaName": "Allow inspirations on others' media",
+    "PermInspirationAnyMediaHint": "If enabled, Players and Trusted Players can add inspirations to any media. If disabled, only to media they added themselves. Gamemasters are not affected.",
+    "PermFactsName": "Minimum role: add questions & facts",
+    "PermFactsHint": "Minimum user role allowed to add questions and set facts on the Genre & Facts tab. Non-gamemasters can only add a question if they set the last fact, and cannot pick another user when setting a fact.",
+    "PermSparksName": "Minimum role: add sparks",
+    "PermSparksHint": "Minimum user role allowed to add sparks on the Title & Sparks tab.",
+    "PermFacesName": "Minimum role: add faces",
+    "PermFacesHint": "Minimum user role allowed to add faces on the Faces tab. Note: to upload images, players also need the core \"Upload Files\" permission, which the Player and Trusted Player roles lack by default.",
+    "PermPlacesName": "Minimum role: add places",
+    "PermPlacesHint": "Minimum user role allowed to add places on the Places tab. Note: to upload images, players also need the core \"Upload Files\" permission, which the Player and Trusted Player roles lack by default."
   }
 }

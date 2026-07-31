@@ -1,10 +1,11 @@
 import { registerSettings } from "./settings.js";
 import { MODULE_ID, STATE_SETTING, getDefaultState } from "./constants.js";
-import { getState, updateState } from "./state.js";
+import { getState, updateState, setState, ensureAllowances, broadcastRefresh } from "./state.js";
 import { SparkDashboardApp } from "./applications/dashboard-app.js";
 
 function registerHelpers() {
   Handlebars.registerHelper("eq", (a, b) => a === b);
+  Handlebars.registerHelper("or", (...args) => args.slice(0, -1).some(Boolean));
   Handlebars.registerHelper("concat", (...args) => args.slice(0, -1).join(""));
 }
 
@@ -49,22 +50,35 @@ function addSceneControlButton(controls) {
   }
 }
 
+function renderDashboards() {
+  for (const app of foundry.applications.instances.values()) {
+    if (app instanceof SparkDashboardApp) {
+      app.render(false);
+    }
+  }
+}
+
 Hooks.once("init", () => {
   registerHelpers();
   registerSettings();
-
-  // Register v13 query handler for cross-client live-refresh
-  CONFIG.queries[`module.${MODULE_ID}.refresh`] = async () => {
-    for (const app of foundry.applications.instances.values()) {
-      if (app instanceof SparkDashboardApp) {
-        app.render(false);
-      }
-    }
-    return {};
-  };
 });
 
 Hooks.once("ready", async () => {
+  // Cross-client refresh and state-update requests
+  game.socket.on(`module.${MODULE_ID}`, async (data) => {
+    if (!data) return;
+    if (data.type === "refresh") {
+      renderDashboards();
+    } else if (data.type === "setState" && game.user.isGM) {
+      const nextState = data.nextState;
+      if (nextState) {
+        ensureAllowances(nextState);
+        await game.settings.set(MODULE_ID, STATE_SETTING, nextState);
+        broadcastRefresh();
+      }
+    }
+  });
+
   // Ensure allowances are persisted on first load
   const state = getState();
   if (!state.factAllowances || state.factAllowances.length === 0) {
@@ -81,7 +95,7 @@ Hooks.once("ready", async () => {
         return;
       }
       const defaults = getDefaultState();
-      await game.settings.set(MODULE_ID, "state", defaults);
+      await setState(defaults);
       ui.notifications.info("Spark Dashboard state has been reset.");
     }
   };

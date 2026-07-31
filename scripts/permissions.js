@@ -1,4 +1,18 @@
 import { isGM, getCurrentUserId } from "./utils/users.js";
+import {
+  MODULE_ID,
+  PERM_MEDIA_SETTING,
+  PERM_INSPIRATION_ANY_MEDIA_SETTING,
+  PERM_FACTS_SETTING,
+  PERM_SPARKS_SETTING,
+  PERM_FACES_SETTING,
+  PERM_PLACES_SETTING
+} from "./constants.js";
+
+function _meetsMinRole(settingKey) {
+  const minRole = game.settings.get(MODULE_ID, settingKey) ?? CONST.USER_ROLES.GAMEMASTER;
+  return game.user.role >= minRole;
+}
 
 export function canOpenDashboard() {
   return true;
@@ -9,6 +23,7 @@ export function canViewAllData() {
 }
 
 export function canAddMedia(state) {
+  if (!_meetsMinRole(PERM_MEDIA_SETTING)) return false;
   if (isGM()) return true;
   const userMedia = state.media.filter(m => m.createdByUserId === getCurrentUserId());
   return userMedia.length < 1;
@@ -22,8 +37,12 @@ export function canDeleteMedia(item) {
   return isGM();
 }
 
-export function canAddInspiration() {
-  return true;
+export function canAddInspiration(media) {
+  if (!_meetsMinRole(PERM_MEDIA_SETTING)) return false;
+  if (isGM()) return true;
+  const anyMediaAllowed = game.settings.get(MODULE_ID, PERM_INSPIRATION_ANY_MEDIA_SETTING);
+  if (anyMediaAllowed) return true;
+  return media?.createdByUserId === getCurrentUserId();
 }
 
 export function canEditInspiration(item) {
@@ -38,11 +57,17 @@ export function canEditGenre() {
   return isGM();
 }
 
-export function canCreateFactQuestion() {
-  return isGM();
+export function canCreateFactQuestion(state) {
+  if (!_meetsMinRole(PERM_FACTS_SETTING)) return false;
+  if (isGM()) return true;
+  // Turn order: only the user who set the last fact may ask the next question,
+  // and only if they haven't already asked the current question.
+  return state.lastFactSetByUserId === getCurrentUserId()
+    && state.lastQuestionByUserId !== getCurrentUserId();
 }
 
 export function canSetFact(allowance) {
+  if (!_meetsMinRole(PERM_FACTS_SETTING)) return false;
   if (isGM()) return true;
   return allowance && allowance.remaining > 0;
 }
@@ -68,7 +93,7 @@ export function canEditCampaignTitle() {
 }
 
 export function canCreateSpark() {
-  return isGM();
+  return _meetsMinRole(PERM_SPARKS_SETTING);
 }
 
 export function canEditSpark(item) {
@@ -84,11 +109,11 @@ export function canEditIssues() {
 }
 
 export function canCreateFace() {
-  return isGM();
+  return _meetsMinRole(PERM_FACES_SETTING);
 }
 
 export function canEditFace(item) {
-  return isGM();
+  return isGM() || item?.createdByUserId === getCurrentUserId();
 }
 
 export function canDeleteFace(item) {
@@ -96,11 +121,11 @@ export function canDeleteFace(item) {
 }
 
 export function canCreatePlace() {
-  return isGM();
+  return _meetsMinRole(PERM_PLACES_SETTING);
 }
 
 export function canEditPlace(item) {
-  return isGM();
+  return isGM() || item?.createdByUserId === getCurrentUserId();
 }
 
 export function canDeletePlace(item) {

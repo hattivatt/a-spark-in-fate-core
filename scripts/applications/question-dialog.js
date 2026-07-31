@@ -34,6 +34,31 @@ export class QuestionDialog extends foundry.applications.api.HandlebarsApplicati
   _onRender(context, options) {
     const saveBtn = this.element.querySelector("button[data-action='save']");
     const closeBtn = this.element.querySelector("button[data-action='close']");
+    const select1 = this.element.querySelector("select[name='inspiration1']");
+    const select2 = this.element.querySelector("select[name='inspiration2']");
+
+    if (select1 && select2) {
+      const sync = () => {
+        const val1 = select1.value;
+        const val2 = select2.value;
+        for (const opt of select1.options) {
+          opt.disabled = !!opt.value && opt.value === val2;
+        }
+        for (const opt of select2.options) {
+          opt.disabled = !!opt.value && opt.value === val1;
+        }
+      };
+      select1.addEventListener("change", () => {
+        if (select1.value && select1.value === select2.value) select2.value = "";
+        sync();
+      });
+      select2.addEventListener("change", () => {
+        if (select2.value && select2.value === select1.value) select1.value = "";
+        sync();
+      });
+      sync();
+    }
+
     saveBtn?.addEventListener("click", async () => {
       const inspiration1 = this.element.querySelector("select[name='inspiration1']")?.value;
       const inspiration2 = this.element.querySelector("select[name='inspiration2']")?.value;

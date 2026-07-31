@@ -11,10 +11,11 @@ export class MediaDialog extends foundry.applications.api.HandlebarsApplicationM
     }
   };
 
-  constructor({ users = [], media = null, onSave } = {}) {
+  constructor({ users = [], media = null, lockUser = false, onSave } = {}) {
     super();
     this.users = users;
     this.media = media;
+    this.lockUser = lockUser;
     this.onSave = onSave;
   }
 
@@ -26,6 +27,8 @@ export class MediaDialog extends foundry.applications.api.HandlebarsApplicationM
     return {
       users: this.users,
       selectedUserId: this.media?.createdByUserId || this.users[0]?.id || "",
+      lockUser: this.lockUser,
+      lockedUser: this.users[0] || null,
       title: this.media?.title || "",
       image: this.media?.image || "",
       description: this.media?.description || ""
@@ -37,7 +40,7 @@ export class MediaDialog extends foundry.applications.api.HandlebarsApplicationM
     const closeBtn = this.element.querySelector("button[data-action='close']");
     saveBtn?.addEventListener("click", async () => {
       const title = this.element.querySelector("input[name='title']")?.value?.trim();
-      const userId = this.element.querySelector("select[name='userId']")?.value;
+      const userId = this.element.querySelector("[name='userId']")?.value;
       const image = this.element.querySelector("input[name='image']")?.value?.trim();
       const description = this.element.querySelector("textarea[name='description']")?.value?.trim();
       if (!title) {

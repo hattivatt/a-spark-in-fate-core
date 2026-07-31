@@ -90,15 +90,18 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
     const userNamesMap = {};
     for (const u of game.users) userNamesMap[u.id] = u.name;
 
-    const playerMediaCount = state.media.filter(m => m.createdByUserId === currentUserId).length;
-    const canPlayerAddMedia = !gm && playerMediaCount < 1;
+    // Media with per-item inspiration permission
+    const media = state.media.map(m => ({
+      ...m,
+      canAddInspiration: Permissions.canAddInspiration(m)
+    }));
 
     // Questions with author info
     const getUserName = (uid) => game.users.get(uid)?.name || uid;
     const questions = (state.factQuestions || []).map((q, idx) => {
       const fact = q.fact;
       const userAllowance = allowancesMap.get(currentUserId);
-      const canSet = !fact && (gm || (userAllowance?.remaining > 0));
+      const canSet = !fact && Permissions.canSetFact(userAllowance);
       const tooltip = q.inspirationIds
         .map(id => state.inspirations.find(i => i.id === id))
         .filter(Boolean)
@@ -234,9 +237,13 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
     return {
       activeTab: this.activeTab,
       canGM: gm,
-      canPlayerAddMedia,
-      canAddInspiration: true,
-      media: state.media,
+      currentUserId,
+      canAddMedia: Permissions.canAddMedia(state),
+      canAddQuestion: Permissions.canCreateFactQuestion(state),
+      canAddSpark: Permissions.canCreateSpark(),
+      canAddFace: Permissions.canCreateFace(),
+      canAddPlace: Permissions.canCreatePlace(),
+      media,
       inspirationsByMedia,
       genre: state.genre,
       campaignTitle: state.campaignTitle,
@@ -301,8 +308,13 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
         ui.notifications.warn(game.i18n.localize("a-spark-in-fate-core.CannotAddMedia"));
         return;
       }
+      const gm = isGM();
+      const users = gm
+        ? getAllUsers()
+        : [{ id: getCurrentUserId(), name: getCurrentUserName() }];
       new MediaDialog({
-        users: getAllUsers(),
+        users,
+        lockUser: !gm,
         onSave: async ({ title, userId, image, description }) => {
           await updateState(s => {
             s.media.push({
@@ -361,7 +373,8 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
     // ── Inspirations ──
     this._onClick("[data-action='add-inspiration']", async event => {
       const mediaId = event.currentTarget.dataset.mediaId;
-      if (!Permissions.canAddInspiration()) return;
+      const media = getState().media.find(m => m.id === mediaId);
+      if (!media || !Permissions.canAddInspiration(media)) return;
       new InspirationDialog({
         onSave: async ({ text }) => {
           await updateState(s => {
@@ -426,8 +439,8 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
 
     // ── Questions ──
     this._onClick("[data-action='add-question']", async () => {
-      if (!Permissions.canCreateFactQuestion()) return;
       const state = getState();
+      if (!Permissions.canCreateFactQuestion(state)) return;
       new QuestionDialog({
         inspirations: state.inspirations,
         onSave: async ({ inspirationIds, text }) => {
@@ -441,6 +454,8 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
               createdByUserId: authorId,
               createdAt: timestamp()
             });
+            // Asking a question consumes the turn until a fact is set.
+            s.lastQuestionByUserId = authorId;
             return s;
           });
           this.render(false);
@@ -475,10 +490,21 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
       const state = getState();
       const q = state.factQuestions.find(fq => fq.id === id);
       const hasFact = !!q?.fact;
+      const isLastQuestion = state.factQuestions.length > 0 && state.factQuestions[state.factQuestions.length - 1].id === id;
       new ConfirmDeleteDialog({
         message: hasFact ? game.i18n.localize("a-spark-in-fate-core.ConfirmDeleteQuestionWithFact") : game.i18n.localize("a-spark-in-fate-core.ConfirmDeleteQuestion"),
         onConfirm: async () => {
           await updateState(s => {
+            if (isLastQuestion && q) {
+              // Undo: turn goes back to the question asker
+              s.lastFactSetByUserId = q.createdByUserId;
+              s.lastQuestionByUserId = null;
+              if (q.fact) {
+                // Refund the fact setter's allowance
+                const allowance = s.factAllowances.find(a => a.userId === q.fact.createdByUserId);
+                if (allowance) allowance.remaining += 1;
+              }
+            }
             s.factQuestions = s.factQuestions.filter(fq => fq.id !== id);
             return s;
           });
@@ -494,10 +520,11 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
       const q = state.factQuestions.find(fq => fq.id === questionId);
       if (!q || q.fact) return;
 
-      // Build list of eligible users who can set this fact
+      // Build list of eligible users who can set this fact.
+      // GM may pick any user; players can only set facts as themselves.
       const gm = isGM();
       const eligibleUsers = state.factAllowances
-        .filter(a => a.remaining > 0 || gm)
+        .filter(a => gm || (a.userId === getCurrentUserId() && a.remaining > 0))
         .map(a => {
           const user = game.users.get(a.userId);
           return { id: a.userId, name: user?.name || a.userId, remaining: a.remaining };
@@ -510,6 +537,7 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
 
       new FactDialog({
         users: eligibleUsers,
+        lockUser: !gm,
         onSave: async ({ text, userId }) => {
           const targetUserId = userId || getCurrentUserId();
           const targetAllowance = state.factAllowances.find(a => a.userId === targetUserId);
@@ -531,6 +559,8 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
             const a = s.factAllowances.find(x => x.userId === targetUserId);
             if (a) a.remaining = Math.max(0, a.remaining - 1);
             s.lastFactSetByUserId = targetUserId;
+            // Setting a fact gives the right to ask the next question.
+            s.lastQuestionByUserId = null;
             return s;
           });
           this.render(false);
@@ -565,12 +595,26 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
     this._onClick("[data-action='delete-fact']", async event => {
       const id = event.currentTarget.dataset.id;
       if (!Permissions.canDeleteFact()) return;
+      const state = getState();
+      const question = state.factQuestions.find(q => q.fact?.id === id);
+      const lastQuestionWithFact = [...state.factQuestions].reverse().find(q => q.fact);
+      const isLastFact = question && lastQuestionWithFact && question.id === lastQuestionWithFact.id;
       new ConfirmDeleteDialog({
         message: game.i18n.localize("a-spark-in-fate-core.ConfirmDeleteFact"),
         onConfirm: async () => {
           await updateState(s => {
             for (const q of s.factQuestions) {
-              if (q.fact?.id === id) { delete q.fact; break; }
+              if (q.fact?.id === id) {
+              if (isLastFact) {
+                // Undo: turn goes back to the question asker, refund the fact setter
+                s.lastFactSetByUserId = q.createdByUserId;
+                s.lastQuestionByUserId = q.createdByUserId;
+                const allowance = s.factAllowances.find(a => a.userId === q.fact.createdByUserId);
+                if (allowance) allowance.remaining += 1;
+              }
+                delete q.fact;
+                break;
+              }
             }
             return s;
           });
@@ -754,6 +798,7 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
               issueType,
               role,
               ...data,
+              createdByUserId: getCurrentUserId(),
               createdAt: timestamp()
             });
             return s;

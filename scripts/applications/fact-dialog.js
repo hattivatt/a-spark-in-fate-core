@@ -11,10 +11,11 @@ export class FactDialog extends foundry.applications.api.HandlebarsApplicationMi
     }
   };
 
-  constructor({ users = [], fact = null, onSave } = {}) {
+  constructor({ users = [], fact = null, lockUser = false, onSave } = {}) {
     super();
     this.users = users;
     this.fact = fact;
+    this.lockUser = lockUser;
     this.onSave = onSave;
   }
 
@@ -26,6 +27,8 @@ export class FactDialog extends foundry.applications.api.HandlebarsApplicationMi
     return {
       users: this.users,
       selectedUserId: this.users[0]?.id || "",
+      lockUser: this.lockUser,
+      lockedUser: this.users[0] || null,
       text: this.fact?.text || ""
     };
   }
@@ -34,7 +37,7 @@ export class FactDialog extends foundry.applications.api.HandlebarsApplicationMi
     const saveBtn = this.element.querySelector("button[data-action='save']");
     const closeBtn = this.element.querySelector("button[data-action='close']");
     saveBtn?.addEventListener("click", async () => {
-      const userId = this.element.querySelector("select[name='userId']")?.value;
+      const userId = this.element.querySelector("[name='userId']")?.value;
       const text = this.element.querySelector("input[name='text']")?.value?.trim();
       if (!text) {
         ui.notifications.warn(game.i18n.localize("a-spark-in-fate-core.TextRequired"));

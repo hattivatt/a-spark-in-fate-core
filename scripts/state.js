@@ -1,6 +1,6 @@
 import { MODULE_ID, STATE_SETTING, getDefaultState } from "./constants.js";
 
-function _ensureAllowances(state) {
+export function ensureAllowances(state) {
   if (!state.factAllowances) state.factAllowances = [];
   const existing = new Map(state.factAllowances.map(a => [a.userId, a]));
   let changed = false;
@@ -22,18 +22,21 @@ export function getState() {
     return getDefaultState();
   }
   const state = foundry.utils.duplicate(raw);
-  _ensureAllowances(state);
+  ensureAllowances(state);
   return state;
 }
 
+export function broadcastRefresh() {
+  game.socket.emit(`module.${MODULE_ID}`, { type: "refresh" });
+}
+
 export async function setState(nextState) {
-  _ensureAllowances(nextState);
-  await game.settings.set(MODULE_ID, STATE_SETTING, nextState);
-  // Notify all other clients via v13 User.query (CONFIG.queries)
-  for (const user of game.users) {
-    if (user.id !== game.user.id) {
-      user.query(`module.${MODULE_ID}.refresh`, {}, { timeout: 5000 }).catch(() => {});
-    }
+  ensureAllowances(nextState);
+  if (game.user.isGM) {
+    await game.settings.set(MODULE_ID, STATE_SETTING, nextState);
+    broadcastRefresh();
+  } else {
+    game.socket.emit(`module.${MODULE_ID}`, { type: "setState", nextState });
   }
 }
 
