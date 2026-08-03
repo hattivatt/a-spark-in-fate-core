@@ -292,9 +292,6 @@
                   <div class="face-field"><span class="field-label">{{localize "a-spark-in-fate-core.FaceHighConceptLabel"}}:</span> {{this.supporter.aspect}}</div>
                   <div class="face-field"><span class="field-label">{{localize "a-spark-in-fate-core.FaceTroubleLabel"}}:</span> {{this.supporter.trouble}}</div>
                   <div class="face-description-block">{{this.supporter.description}}</div>
-                  {{#if this.supporter.actorId}}
-                    <button class="spark-btn small" data-action="open-actor" data-actor-id="{{this.supporter.actorId}}">{{localize "a-spark-in-fate-core.OpenActor"}}</button>
-                  {{/if}}
                 </div>
               {{else}}
                 <div class="empty">—</div>
@@ -309,9 +306,6 @@
                   <div class="face-field"><span class="field-label">{{localize "a-spark-in-fate-core.FaceHighConceptLabel"}}:</span> {{this.rejector.aspect}}</div>
                   <div class="face-field"><span class="field-label">{{localize "a-spark-in-fate-core.FaceTroubleLabel"}}:</span> {{this.rejector.trouble}}</div>
                   <div class="face-description-block">{{this.rejector.description}}</div>
-                  {{#if this.rejector.actorId}}
-                    <button class="spark-btn small" data-action="open-actor" data-actor-id="{{this.rejector.actorId}}">{{localize "a-spark-in-fate-core.OpenActor"}}</button>
-                  {{/if}}
                 </div>
               {{else}}
                 <div class="empty">—</div>

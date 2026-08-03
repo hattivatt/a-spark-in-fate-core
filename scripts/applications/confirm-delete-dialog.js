@@ -1,6 +1,9 @@
+import { applyDialogFrameStyles } from "../utils/dialog-styles.js";
+
 export class ConfirmDeleteDialog extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
   static DEFAULT_OPTIONS = {
     tag: "form",
+    classes: ["spark-dialog-app"],
     window: { title: "a-spark-in-fate-core.ConfirmDelete", icon: "fas fa-trash" },
     position: { width: 400 }
   };
@@ -24,6 +27,7 @@ export class ConfirmDeleteDialog extends foundry.applications.api.HandlebarsAppl
   }
 
   _onRender(context, options) {
+    applyDialogFrameStyles(this);
     const confirmBtn = this.element.querySelector("button[data-action='confirm']");
     const closeBtn = this.element.querySelector("button[data-action='close']");
     confirmBtn?.addEventListener("click", async () => {

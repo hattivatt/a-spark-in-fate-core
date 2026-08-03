@@ -1,9 +1,11 @@
+import { applyDialogFrameStyles } from "../utils/dialog-styles.js";
+
 export class SparkDialog extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
   static DEFAULT_OPTIONS = {
     tag: "form",
     classes: ["spark-dialog-app"],
     window: { title: "a-spark-in-fate-core.CreateSpark", icon: "fas fa-fire", resizable: true },
-    position: { width: 600, height: 520 }
+    position: { width: 1200, height: 800 }
   };
 
   static PARTS = {
@@ -17,6 +19,16 @@ export class SparkDialog extends foundry.applications.api.HandlebarsApplicationM
     this.facts = facts;
     this.spark = spark;
     this.onSave = onSave;
+
+    // Auto-size the window to roughly fit the fact list, so the dialog
+    // opens compact for a few facts and grows for many (clamped to screen).
+    const baseHeight = 265;   // text field + list label + buttons + header + padding
+    const rowHeight = 46;     // one fact row
+    const linesOf = (f) => (f.text ? Math.max(1, Math.ceil(f.text.length / 80)) : 1);
+    const est = baseHeight + facts.reduce((sum, f) => sum + rowHeight * linesOf(f), 0);
+    const minHeight = 340;
+    const maxHeight = Math.floor((window.innerHeight || 800) * 0.92);
+    this.position.height = Math.max(minHeight, Math.min(est, maxHeight));
   }
 
   get title() {
@@ -32,6 +44,7 @@ export class SparkDialog extends foundry.applications.api.HandlebarsApplicationM
   }
 
   _onRender(context, options) {
+    applyDialogFrameStyles(this);
     const saveBtn = this.element.querySelector("button[data-action='save']");
     const closeBtn = this.element.querySelector("button[data-action='close']");
     saveBtn?.addEventListener("click", async () => {
