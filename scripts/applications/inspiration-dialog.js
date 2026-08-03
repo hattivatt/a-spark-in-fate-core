@@ -1,6 +1,9 @@
+import { applyDialogFrameStyles } from "../utils/dialog-styles.js";
+
 export class InspirationDialog extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
   static DEFAULT_OPTIONS = {
     tag: "form",
+    classes: ["spark-dialog-app"],
     window: { title: "a-spark-in-fate-core.AddInspiration", icon: "fas fa-lightbulb" },
     position: { width: 400 }
   };
@@ -28,6 +31,7 @@ export class InspirationDialog extends foundry.applications.api.HandlebarsApplic
   }
 
   _onRender(context, options) {
+    applyDialogFrameStyles(this);
     const saveBtn = this.element.querySelector("button[data-action='save']");
     const closeBtn = this.element.querySelector("button[data-action='close']");
     saveBtn?.addEventListener("click", async () => {

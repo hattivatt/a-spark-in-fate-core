@@ -129,6 +129,20 @@ section h2 {
   min-width: 180px;
 }
 
+.spark-dialog .locked-user {
+  display: inline-block;
+  width: 100%;
+  background: var(--spark-card-bg);
+  color: var(--spark-text);
+  border: 1px solid var(--spark-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-weight: 600;
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
 /* Buttons */
 .spark-btn {
   display: inline-flex;
@@ -154,6 +168,28 @@ section h2 {
 
 .spark-btn.delete {
   background: var(--spark-danger);
+}
+
+/* Form controls and placeholders must remain readable in both themes */
+.spark-dashboard .form-group input,
+.spark-dashboard .form-group select,
+.spark-dashboard .form-group textarea,
+.spark-dialog .form-group input,
+.spark-dialog .form-group select,
+.spark-dialog .form-group textarea {
+  background: var(--spark-card-bg);
+  color: var(--spark-text);
+  border: 1px solid var(--spark-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.spark-dashboard .form-group input::placeholder,
+.spark-dashboard .form-group textarea::placeholder,
+.spark-dialog .form-group input::placeholder,
+.spark-dialog .form-group textarea::placeholder {
+  color: var(--spark-muted);
+  opacity: 1;
 }
 
 /* Media list */
@@ -660,6 +696,7 @@ section h2 {
   border-radius: 4px;
   overflow: hidden;
   background: #000;
+  margin: 0 auto;
 }
 
 .overview-face-card .face-portrait img,
@@ -675,6 +712,7 @@ section h2 {
 .overview-place-card.small .place-image {
   width: 120px;
   height: 120px;
+  margin: 0 auto;
 }
 
 .overview-place-card.small .place-image img,
@@ -789,12 +827,42 @@ section h2 {
   flex-direction: column;
 }
 
+/* The dark frame around dialogs is the .application element's own background
+   (dark in Foundry's dark theme). Use a warm brown slightly darker than the
+   window background so dialogs stand out but still feel like one palette. */
+.application.spark-dialog-app,
+body .application.spark-dialog-app,
+body.theme-dark .application.spark-dialog-app {
+  background: var(--spark-border) !important;
+  border: 1px solid var(--spark-border) !important;
+  box-shadow: none !important;
+  outline: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+}
+
+.application.spark-dialog-app::before,
+.application.spark-dialog-app::after,
+body.theme-dark .application.spark-dialog-app::before,
+body.theme-dark .application.spark-dialog-app::after {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  outline: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+}
+
 .spark-dialog-app .window-content {
   flex: 1 1 auto;
   min-height: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  background: var(--spark-bg);
+  color: var(--spark-text);
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .spark-dialog-app .window-content > form {
@@ -812,6 +880,8 @@ section h2 {
   flex-direction: column;
   overflow: hidden;
   gap: 10px;
+  background: var(--spark-bg);
+  color: var(--spark-text);
 }
 
 .spark-dialog .form-group {
@@ -839,43 +909,84 @@ section h2 {
   width: 100%;
 }
 
-.spark-dialog .fact-checkboxes {
+.spark-dialog-app .spark-dialog .fact-checkboxes {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  border: 1px solid var(--spark-border);
-  padding: 10px;
-  border-radius: 6px;
-  background: #f9f7f2;
+  border: none !important;
+  padding: 0 !important;
+  background: transparent !important;
+  width: 100%;
 }
 
-.spark-dialog .fact-checkbox-item {
+.spark-dialog-app .spark-dialog .fact-checkbox-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
-  background: #fff;
-  border: 1px solid var(--spark-border);
-  border-radius: 6px;
-  padding: 8px 10px;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  background: transparent !important;
+  border: none !important;
+  border-bottom: 1px solid var(--spark-border) !important;
+  border-radius: 0 !important;
+  padding: 10px 4px !important;
+  box-shadow: none !important;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: background 0.15s ease;
 }
 
-.spark-dialog .fact-checkbox-item:hover {
-  background: #fff8e7;
-  border-color: var(--spark-accent);
+.spark-dialog-app .spark-dialog .fact-checkbox-item:hover {
+  background: rgba(0,0,0,0.04) !important;
+  border-color: var(--spark-border) !important;
 }
 
-.spark-dialog .fact-checkbox-item input[type="checkbox"] {
-  flex: 0 0 auto;
+.spark-dialog-app .spark-dialog .fact-checkbox-item input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  pointer-events: none;
+}
+
+.spark-dialog-app .spark-dialog .fact-checkbox-item .fact-checkbox-text {
+  position: relative;
+  padding-left: 26px;
+}
+
+.spark-dialog-app .spark-dialog .fact-checkbox-item .fact-checkbox-text::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1px;
   width: 18px;
   height: 18px;
-  margin: 0;
-  cursor: pointer;
+  box-sizing: border-box;
+  border: 2px solid var(--spark-border);
+  border-radius: 3px;
+  background: var(--spark-card-bg);
+  pointer-events: none;
+}
+
+.spark-dialog-app .spark-dialog .fact-checkbox-item input[type="checkbox"]:checked + .fact-checkbox-text::before {
+  background: var(--spark-primary);
+  border-color: var(--spark-primary);
+}
+
+.spark-dialog-app .spark-dialog .fact-checkbox-item input[type="checkbox"]:checked + .fact-checkbox-text::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 3px;
+  width: 5px;
+  height: 9px;
+  box-sizing: border-box;
+  border: solid #fff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  pointer-events: none;
 }
 
 .spark-dialog .fact-checkbox-text {
@@ -903,7 +1014,12 @@ section h2 {
 }
 
 .dialog-buttons button.cancel {
-  background: #ccc;
+  background: var(--spark-muted);
+  color: #fff;
+}
+
+.dialog-buttons button:hover {
+  filter: brightness(1.1);
 }
 
 /* Scrollbars */

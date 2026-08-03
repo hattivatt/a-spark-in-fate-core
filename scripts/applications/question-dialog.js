@@ -1,6 +1,9 @@
+import { applyDialogFrameStyles } from "../utils/dialog-styles.js";
+
 export class QuestionDialog extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
   static DEFAULT_OPTIONS = {
     tag: "form",
+    classes: ["spark-dialog-app"],
     window: { title: "a-spark-in-fate-core.CreateQuestion", icon: "fas fa-question" },
     position: { width: 500 }
   };
@@ -32,6 +35,7 @@ export class QuestionDialog extends foundry.applications.api.HandlebarsApplicati
   }
 
   _onRender(context, options) {
+    applyDialogFrameStyles(this);
     const saveBtn = this.element.querySelector("button[data-action='save']");
     const closeBtn = this.element.querySelector("button[data-action='close']");
     const select1 = this.element.querySelector("select[name='inspiration1']");

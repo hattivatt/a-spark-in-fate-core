@@ -1,6 +1,9 @@
+import { applyDialogFrameStyles } from "../utils/dialog-styles.js";
+
 export class FactDialog extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
   static DEFAULT_OPTIONS = {
     tag: "form",
+    classes: ["spark-dialog-app"],
     window: { title: "a-spark-in-fate-core.SetFact", icon: "fas fa-check-circle" },
     position: { width: 400 }
   };
@@ -34,6 +37,7 @@ export class FactDialog extends foundry.applications.api.HandlebarsApplicationMi
   }
 
   _onRender(context, options) {
+    applyDialogFrameStyles(this);
     const saveBtn = this.element.querySelector("button[data-action='save']");
     const closeBtn = this.element.querySelector("button[data-action='close']");
     saveBtn?.addEventListener("click", async () => {
