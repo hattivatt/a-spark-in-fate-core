@@ -150,6 +150,10 @@
     "PermFacesName": "Minimum role: add faces",
     "PermFacesHint": "Minimum user role allowed to add faces on the Faces tab. Note: to upload images, players also need the core \"Upload Files\" permission, which the Player and Trusted Player roles lack by default.",
     "PermPlacesName": "Minimum role: add places",
-    "PermPlacesHint": "Minimum user role allowed to add places on the Places tab. Note: to upload images, players also need the core \"Upload Files\" permission, which the Player and Trusted Player roles lack by default."
+    "PermPlacesHint": "Minimum user role allowed to add places on the Places tab. Note: to upload images, players also need the core \"Upload Files\" permission, which the Player and Trusted Player roles lack by default.",
+    "EnableFacesName": "Enable Faces stage",
+    "EnableFacesHint": "If disabled, the Faces tab is hidden from the dashboard, and faces no longer appear on the Overview tab or in the print export.",
+    "EnablePlacesName": "Enable Places stage",
+    "EnablePlacesHint": "If disabled, the Places tab is hidden from the dashboard, and places no longer appear on the Overview tab or in the print export."
   }
 }

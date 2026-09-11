@@ -4,8 +4,8 @@
     <a class="spark-tab-link {{#if tabStatus.genre}}completed{{/if}}" data-tab="genre">{{localize "a-spark-in-fate-core.TabGenre"}}</a>
     <a class="spark-tab-link {{#if tabStatus.title}}completed{{/if}}" data-tab="title">{{localize "a-spark-in-fate-core.TabTitle"}}</a>
     <a class="spark-tab-link {{#if tabStatus.issues}}completed{{/if}}" data-tab="issues">{{localize "a-spark-in-fate-core.TabIssues"}}</a>
-    <a class="spark-tab-link {{#if tabStatus.faces}}completed{{/if}}" data-tab="faces">{{localize "a-spark-in-fate-core.TabFaces"}}</a>
-    <a class="spark-tab-link {{#if tabStatus.places}}completed{{/if}}" data-tab="places">{{localize "a-spark-in-fate-core.TabPlaces"}}</a>
+    {{#if enableFaces}}<a class="spark-tab-link {{#if tabStatus.faces}}completed{{/if}}" data-tab="faces">{{localize "a-spark-in-fate-core.TabFaces"}}</a>{{/if}}
+    {{#if enablePlaces}}<a class="spark-tab-link {{#if tabStatus.places}}completed{{/if}}" data-tab="places">{{localize "a-spark-in-fate-core.TabPlaces"}}</a>{{/if}}
     <a class="spark-tab-link {{#if tabStatus.overview}}completed{{/if}}" data-tab="overview">{{localize "a-spark-in-fate-core.TabOverview"}}</a>
   </nav>
 
@@ -191,7 +191,7 @@
     </div>
 
     {{!-- Вкладка 5: Действующие лица --}}
-    <div class="tab {{#if (eq activeTab 'faces')}}active{{/if}}" data-tab="faces">
+    {{#if enableFaces}}<div class="tab {{#if (eq activeTab 'faces')}}active{{/if}}" data-tab="faces">
       <div class="faces-columns">
         {{#each issueFaces}}
           <div class="faces-column" data-issue="{{this.type}}">
@@ -239,10 +239,10 @@
           </div>
         {{/each}}
       </div>
-    </div>
+    </div>{{/if}}
 
     {{!-- Вкладка 6: Локации --}}
-    <div class="tab {{#if (eq activeTab 'places')}}active{{/if}}" data-tab="places">
+    {{#if enablePlaces}}<div class="tab {{#if (eq activeTab 'places')}}active{{/if}}" data-tab="places">
       <h2>{{localize "a-spark-in-fate-core.PlacesSection"}}</h2>
       {{#if canAddPlace}}
         <button class="spark-btn" data-action="add-place">{{localize "a-spark-in-fate-core.AddPlace"}}</button>
@@ -265,7 +265,7 @@
           </div>
         {{/each}}
       </div>
-    </div>
+    </div>{{/if}}
 
     {{!-- Вкладка 7: Итог --}}
     <div class="tab {{#if (eq activeTab 'overview')}}active{{/if}}" data-tab="overview">
@@ -283,7 +283,7 @@
               <div class="overview-issue-spark">{{this.sparkText}}</div>
               <div class="overview-issue-aspect"><span class="field-label">{{localize "a-spark-in-fate-core.IssueAspect"}}:</span> {{this.aspectText}}</div>
 
-              <h4>{{localize "a-spark-in-fate-core.Supporter"}}</h4>
+              {{#if ../enableFaces}}<h4>{{localize "a-spark-in-fate-core.Supporter"}}</h4>
               {{#if this.supporter}}
                 <div class="overview-face-card">
                   <div class="face-portrait">{{#if this.supporter.portrait}}<img src="{{this.supporter.portrait}}">{{else}}<div class="placeholder"><i class="fas fa-user"></i></div>{{/if}}</div>
@@ -295,9 +295,9 @@
                 </div>
               {{else}}
                 <div class="empty">—</div>
-              {{/if}}
+              {{/if}}{{/if}}
 
-              <h4>{{localize "a-spark-in-fate-core.Rejector"}}</h4>
+              {{#if ../enableFaces}}<h4>{{localize "a-spark-in-fate-core.Rejector"}}</h4>
               {{#if this.rejector}}
                 <div class="overview-face-card">
                   <div class="face-portrait">{{#if this.rejector.portrait}}<img src="{{this.rejector.portrait}}">{{else}}<div class="placeholder"><i class="fas fa-user"></i></div>{{/if}}</div>
@@ -309,9 +309,9 @@
                 </div>
               {{else}}
                 <div class="empty">—</div>
-              {{/if}}
+              {{/if}}{{/if}}
 
-              <h4>{{localize "a-spark-in-fate-core.Place"}}</h4>
+              {{#if ../enablePlaces}}<h4>{{localize "a-spark-in-fate-core.Place"}}</h4>
               {{#if this.place}}
                 <div class="overview-place-card">
                   <div class="place-image">{{#if this.place.image}}<img src="{{this.place.image}}">{{else}}<div class="placeholder">{{localize "a-spark-in-fate-core.NoImage"}}</div>{{/if}}</div>
@@ -320,7 +320,7 @@
                 </div>
               {{else}}
                 <div class="empty">—</div>
-              {{/if}}
+              {{/if}}{{/if}}
             </div>
           {{/each}}
         </div>
@@ -332,13 +332,13 @@
           {{#each otherSparks}}
             <div class="other-spark-item">
               <div class="spark-text">{{this.text}}</div>
-              {{#if this.place}}
+              {{#if ../enablePlaces}}{{#if this.place}}
                 <div class="overview-place-card small">
                   <div class="place-image">{{#if this.place.image}}<img src="{{this.place.image}}">{{else}}<div class="placeholder">{{localize "a-spark-in-fate-core.NoImage"}}</div>{{/if}}</div>
                   <div class="place-name">{{this.place.name}}</div>
                   <div class="place-aspect"><span class="field-label">{{localize "a-spark-in-fate-core.PlaceAspectLabel"}}:</span> {{this.place.aspect}}</div>
                 </div>
-              {{/if}}
+              {{/if}}{{/if}}
             </div>
           {{/each}}
         </div>

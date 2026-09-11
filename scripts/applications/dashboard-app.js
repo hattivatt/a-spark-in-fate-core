@@ -6,6 +6,7 @@ import {
   createWorldAspect, deleteWorldAspect,
   createFateActor, updateFateActor, openActorSheet, getFateCoreSkills
 } from "../fate-core-adapter.js";
+import { MODULE_ID, ENABLE_FACES_SETTING, ENABLE_PLACES_SETTING } from "../constants.js";
 import { MediaDialog } from "./media-dialog.js";
 import { InspirationDialog } from "./inspiration-dialog.js";
 import { QuestionDialog } from "./question-dialog.js";
@@ -55,6 +56,14 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
     const gm = isGM();
     const currentUserId = getCurrentUserId();
     const userCount = getWorldUserCount();
+    let enableFaces = true;
+    let enablePlaces = true;
+    try {
+      enableFaces = game.settings.get(MODULE_ID, ENABLE_FACES_SETTING);
+      enablePlaces = game.settings.get(MODULE_ID, ENABLE_PLACES_SETTING);
+    } catch (_) {}
+    if (this.activeTab === "faces" && !enableFaces) this.activeTab = "overview";
+    if (this.activeTab === "places" && !enablePlaces) this.activeTab = "overview";
 
     // Ensure allowances exist for all users
     const allowancesMap = new Map((state.factAllowances || []).map(a => [a.userId, a]));
@@ -226,11 +235,11 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
       genre: state.genre.text && questions.length > 0 && questions.every(q => q.fact),
       title: state.campaignTitle.text && sparksCount >= sparksTarget,
       issues: issuesList.every(i => i.sparkId && i.aspectText),
-      faces: issueFaces.every(col => col.roles.every(r => r.face && r.face.name)),
-      places: issueSparkIds.size > 0 && Array.from(issueSparkIds).every(id => state.places.some(p => {
+      faces: !enableFaces || issueFaces.every(col => col.roles.every(r => r.face && r.face.name)),
+      places: !enablePlaces || (issueSparkIds.size > 0 && Array.from(issueSparkIds).every(id => state.places.some(p => {
         const sp = sparks.find(s => s.id === p.sparkId);
         return sp && sp.id === id;
-      })),
+      }))),
       overview: true
     };
 
@@ -238,11 +247,13 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
       activeTab: this.activeTab,
       canGM: gm,
       currentUserId,
+      enableFaces,
+      enablePlaces,
       canAddMedia: Permissions.canAddMedia(state),
       canAddQuestion: Permissions.canCreateFactQuestion(state),
       canAddSpark: Permissions.canCreateSpark(),
-      canAddFace: Permissions.canCreateFace(),
-      canAddPlace: Permissions.canCreatePlace(),
+      canAddFace: enableFaces && Permissions.canCreateFace(),
+      canAddPlace: enablePlaces && Permissions.canCreatePlace(),
       media,
       inspirationsByMedia,
       genre: state.genre,
@@ -269,11 +280,13 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
     // Check for empty default character template (GM only)
     if (!this._templateWarned && game.user.isGM) {
       this._templateWarned = true;
+      let enableFaces = true;
+      try { enableFaces = game.settings.get(MODULE_ID, ENABLE_FACES_SETTING); } catch (_) {}
       const wd = typeof fcoConstants !== "undefined" ? fcoConstants.wd() : null;
       if (wd) {
         const aspectsEmpty = Object.keys(wd.system.aspects || {}).length === 0;
         const skillsEmpty = Object.keys(wd.system.skills || {}).length === 0;
-        if (aspectsEmpty || skillsEmpty) {
+        if (enableFaces && (aspectsEmpty || skillsEmpty)) {
           new foundry.applications.api.DialogV2({
             window: { title: game.i18n.localize("a-spark-in-fate-core.TemplateWarningTitle") },
             content: `<p>${game.i18n.localize("a-spark-in-fate-core.TemplateWarning")}</p>`,
@@ -976,6 +989,14 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
     const title = context.campaignTitle.text || game.i18n.localize("a-spark-in-fate-core.OverviewTitle");
     const genre = context.genre.text || "";
     const escapeHtml = (str) => String(str || "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    let enableFaces = context.enableFaces;
+    let enablePlaces = context.enablePlaces;
+    if (typeof enableFaces !== "boolean") {
+      try { enableFaces = game.settings.get(MODULE_ID, ENABLE_FACES_SETTING); } catch (_) { enableFaces = true; }
+    }
+    if (typeof enablePlaces !== "boolean") {
+      try { enablePlaces = game.settings.get(MODULE_ID, ENABLE_PLACES_SETTING); } catch (_) { enablePlaces = true; }
+    }
 
     const faceHtml = (face) => {
       if (!face) return `<div class="empty">—</div>`;
@@ -1005,23 +1026,22 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
     };
 
     const issuesHtml = context.overviewIssues.map(issue => {
+      const supporterBlock = enableFaces ? `<h3>${game.i18n.localize("a-spark-in-fate-core.Supporter")}</h3>${faceHtml(issue.supporter)}<h3>${game.i18n.localize("a-spark-in-fate-core.Rejector")}</h3>${faceHtml(issue.rejector)}` : "";
+      const placeBlock = enablePlaces ? `<h3>${game.i18n.localize("a-spark-in-fate-core.Place")}</h3>${placeHtml(issue.place)}` : "";
       return `<div class="print-issue">
         <h2>${game.i18n.localize("a-spark-in-fate-core.IssueType" + issue.type)}</h2>
         <div class="print-issue-spark">${escapeHtml(issue.sparkText)}</div>
         <div class="print-field"><span class="print-label">${game.i18n.localize("a-spark-in-fate-core.IssueAspect")}:</span> ${escapeHtml(issue.aspectText)}</div>
-        <h3>${game.i18n.localize("a-spark-in-fate-core.Supporter")}</h3>
-        ${faceHtml(issue.supporter)}
-        <h3>${game.i18n.localize("a-spark-in-fate-core.Rejector")}</h3>
-        ${faceHtml(issue.rejector)}
-        <h3>${game.i18n.localize("a-spark-in-fate-core.Place")}</h3>
-        ${placeHtml(issue.place)}
+        ${supporterBlock}
+        ${placeBlock}
       </div>`;
     }).join("");
 
     const otherSparksHtml = context.otherSparks.map(spark => {
+      const placePart = enablePlaces && spark.place ? placeHtml(spark.place) : "";
       return `<div class="print-other-spark">
         <div class="print-spark-text">${escapeHtml(spark.text)}</div>
-        ${spark.place ? placeHtml(spark.place) : ""}
+        ${placePart}
       </div>`;
     }).join("");
 
@@ -1058,7 +1078,7 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
     .print-genre { text-align: center; font-size: 13pt; color: #555; margin-bottom: 20px; }
     h2 { font-size: 14pt; color: #4a3b2a; border-bottom: 1px solid #d4c5b0; padding-bottom: 4px; margin-top: 18px; }
     h3 { font-size: 12pt; color: #6b4c3a; margin: 12px 0 6px; }
-    .print-issue { flex: 1 1 30%; min-width: 220px; max-width: 100%; break-inside: auto; }
+    .print-issue { flex: 1 1 0; min-width: 0; max-width: 100%; break-inside: auto; overflow-wrap: anywhere; }
     .print-issue-spark { background: #f9f7f2; border: 1px solid #d4c5b0; border-left: 3px solid #c9a66b; border-radius: 6px; padding: 8px 10px; margin-bottom: 8px; }
     .print-field { margin-bottom: 4px; }
     .print-label { font-weight: bold; color: #6b4c3a; }

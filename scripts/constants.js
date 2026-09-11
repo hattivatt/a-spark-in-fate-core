@@ -6,6 +6,8 @@ const PERM_FACTS_SETTING = "permFacts";
 const PERM_SPARKS_SETTING = "permSparks";
 const PERM_FACES_SETTING = "permFaces";
 const PERM_PLACES_SETTING = "permPlaces";
+const ENABLE_FACES_SETTING = "enableFaces";
+const ENABLE_PLACES_SETTING = "enablePlaces";
 const DEFAULT_STATE_VERSION = 1;
 
 function getDefaultState() {
@@ -45,6 +47,8 @@ export {
   PERM_SPARKS_SETTING,
   PERM_FACES_SETTING,
   PERM_PLACES_SETTING,
+  ENABLE_FACES_SETTING,
+  ENABLE_PLACES_SETTING,
   DEFAULT_STATE_VERSION,
   getDefaultState
 };

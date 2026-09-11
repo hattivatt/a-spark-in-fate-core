@@ -7,6 +7,8 @@ import {
   PERM_SPARKS_SETTING,
   PERM_FACES_SETTING,
   PERM_PLACES_SETTING,
+  ENABLE_FACES_SETTING,
+  ENABLE_PLACES_SETTING,
   getDefaultState
 } from "./constants.js";
 
@@ -91,4 +93,24 @@ export function registerSettings() {
     "a-spark-in-fate-core.PermPlacesHint",
     CONST.USER_ROLES.GAMEMASTER
   );
+
+  game.settings.register(MODULE_ID, ENABLE_FACES_SETTING, {
+    name: "a-spark-in-fate-core.EnableFacesName",
+    hint: "a-spark-in-fate-core.EnableFacesHint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+    onChange: _refreshDashboards
+  });
+
+  game.settings.register(MODULE_ID, ENABLE_PLACES_SETTING, {
+    name: "a-spark-in-fate-core.EnablePlacesName",
+    hint: "a-spark-in-fate-core.EnablePlacesHint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: true,
+    onChange: _refreshDashboards
+  });
 }
