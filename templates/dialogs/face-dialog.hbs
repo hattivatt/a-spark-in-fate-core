@@ -18,7 +18,12 @@
   </div>
   <div class="form-group">
     <label>{{localize "a-spark-in-fate-core.FacePortrait"}}</label>
-    <file-picker name="portrait" type="image" value="{{portrait}}"></file-picker>
+    <div class="spark-file-row">
+      <input type="text" name="portrait" value="{{portrait}}">
+      {{#if canUpload}}
+        <button type="button" class="icon" data-action="pickImage" title="{{localize 'a-spark-in-fate-core.PickImage'}}"><i class="fa-solid fa-file-import fa-fw"></i></button>
+      {{/if}}
+    </div>
   </div>
   <div class="form-group">
     <label>{{localize "a-spark-in-fate-core.FaceAspect"}}</label>

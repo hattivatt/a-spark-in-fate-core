@@ -1,11 +1,18 @@
 import { applyDialogFrameStyles } from "../utils/dialog-styles.js";
+import { openImagePicker } from "../utils/image-field.js";
 
 export class PlaceDialog extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
   static DEFAULT_OPTIONS = {
     tag: "form",
     classes: ["spark-dialog-app"],
     window: { title: "a-spark-in-fate-core.AddPlace", icon: "fas fa-map-marker-alt" },
-    position: { width: 400 }
+    position: { width: 400 },
+    actions: {
+      pickImage: function(_event, target) {
+        const input = target?.closest(".spark-file-row")?.querySelector("input");
+        if (input) openImagePicker(input);
+      }
+    }
   };
 
   static PARTS = {
@@ -31,7 +38,8 @@ export class PlaceDialog extends foundry.applications.api.HandlebarsApplicationM
       selectedSparkId: this.place?.sparkId || "",
       name: this.place?.name || "",
       aspect: this.place?.aspect || "",
-      image: this.place?.image || ""
+      image: this.place?.image || "",
+      canUpload: game.user.can("FILES_UPLOAD")
     };
   }
 
@@ -43,8 +51,7 @@ export class PlaceDialog extends foundry.applications.api.HandlebarsApplicationM
       const sparkId = this.element.querySelector("select[name='sparkId']")?.value;
       const name = this.element.querySelector("input[name='name']")?.value?.trim();
       const aspect = this.element.querySelector("input[name='aspect']")?.value?.trim();
-      const imageEl = this.element.querySelector("file-picker[name='image']");
-      const image = imageEl ? (imageEl.value || undefined) : undefined;
+      const image = this.element.querySelector("input[name='image']")?.value?.trim() || undefined;
       if (!sparkId) {
         ui.notifications.warn(game.i18n.localize("a-spark-in-fate-core.SparkRequired"));
         return;

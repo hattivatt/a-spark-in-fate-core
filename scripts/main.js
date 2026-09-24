@@ -74,6 +74,7 @@ Hooks.once("ready", async () => {
       if (nextState) {
         ensureAllowances(nextState);
         await game.settings.set(MODULE_ID, STATE_SETTING, nextState);
+        renderDashboards();
         broadcastRefresh();
       }
     }

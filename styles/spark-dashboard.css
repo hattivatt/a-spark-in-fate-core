@@ -129,6 +129,24 @@ section h2 {
   min-width: 180px;
 }
 
+.spark-file-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+}
+
+.spark-file-row input,
+.spark-dialog .form-group .spark-file-row input {
+  flex: 1 1 auto;
+  min-width: 0;
+  width: auto;
+}
+
+.spark-file-row button {
+  flex: 0 0 auto;
+}
+
 .spark-dialog .locked-user {
   display: inline-block;
   width: 100%;

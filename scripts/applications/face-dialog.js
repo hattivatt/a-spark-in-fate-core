@@ -1,11 +1,18 @@
 import { applyDialogFrameStyles } from "../utils/dialog-styles.js";
+import { openImagePicker } from "../utils/image-field.js";
 
 export class FaceDialog extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
   static DEFAULT_OPTIONS = {
     tag: "form",
     classes: ["spark-dialog-app"],
     window: { title: "a-spark-in-fate-core.AddFace", icon: "fas fa-user" },
-    position: { width: 400 }
+    position: { width: 400 },
+    actions: {
+      pickImage: function(_event, target) {
+        const input = target?.closest(".spark-file-row")?.querySelector("input");
+        if (input) openImagePicker(input);
+      }
+    }
   };
 
   static PARTS = {
@@ -33,7 +40,8 @@ export class FaceDialog extends foundry.applications.api.HandlebarsApplicationMi
       description: this.face?.description || "",
       portrait: this.face?.portrait || "",
       aspect: this.face?.aspect || "",
-      trouble: this.face?.trouble || ""
+      trouble: this.face?.trouble || "",
+      canUpload: game.user.can("FILES_UPLOAD")
     };
   }
 
@@ -45,8 +53,7 @@ export class FaceDialog extends foundry.applications.api.HandlebarsApplicationMi
       const name = this.element.querySelector("input[name='name']")?.value?.trim();
       const mainSkill = this.element.querySelector("select[name='mainSkill']")?.value || undefined;
       const description = this.element.querySelector("textarea[name='description']")?.value?.trim() || undefined;
-      const portraitEl = this.element.querySelector("file-picker[name='portrait']");
-      const portrait = portraitEl ? (portraitEl.value || undefined) : undefined;
+      const portrait = this.element.querySelector("input[name='portrait']")?.value?.trim() || undefined;
       const aspect = this.element.querySelector("input[name='aspect']")?.value?.trim() || undefined;
       const trouble = this.element.querySelector("input[name='trouble']")?.value?.trim() || undefined;
       if (!name) {
