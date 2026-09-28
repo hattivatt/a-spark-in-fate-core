@@ -144,6 +144,10 @@ export function canUpdateActorFromFace() {
   return isGM();
 }
 
+export function canDeleteActorFromFace() {
+  return isGM();
+}
+
 export function canOpenActor() {
   return true;
 }

@@ -8,6 +8,7 @@ const PERM_FACES_SETTING = "permFaces";
 const PERM_PLACES_SETTING = "permPlaces";
 const ENABLE_FACES_SETTING = "enableFaces";
 const ENABLE_PLACES_SETTING = "enablePlaces";
+const FACE_SKILL_RANK_SETTING = "faceSkillRank";
 const DEFAULT_STATE_VERSION = 1;
 
 function getDefaultState() {
@@ -49,6 +50,7 @@ export {
   PERM_PLACES_SETTING,
   ENABLE_FACES_SETTING,
   ENABLE_PLACES_SETTING,
+  FACE_SKILL_RANK_SETTING,
   DEFAULT_STATE_VERSION,
   getDefaultState
 };

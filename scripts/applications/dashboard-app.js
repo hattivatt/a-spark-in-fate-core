@@ -4,7 +4,7 @@ import { generateId, timestamp } from "../utils/ids.js";
 import * as Permissions from "../permissions.js";
 import {
   createWorldAspect, deleteWorldAspect,
-  createFateActor, updateFateActor, openActorSheet, getFateCoreSkills
+  createFateActor, updateFateActor, deleteFateActor, openActorSheet, getFateCoreSkills
 } from "../fate-core-adapter.js";
 import { MODULE_ID, ENABLE_FACES_SETTING, ENABLE_PLACES_SETTING } from "../constants.js";
 import { MediaDialog } from "./media-dialog.js";
@@ -896,6 +896,32 @@ export class SparkDashboardApp extends foundry.applications.api.HandlebarsApplic
       const actorId = event.currentTarget.dataset.actorId;
       if (!actorId) return;
       await openActorSheet(actorId);
+    });
+    this._onClick("[data-action='delete-actor']", async event => {
+      const id = event.currentTarget.dataset.id;
+      const face = getState().faces.find(f => f.id === id);
+      if (!face || !face.actorId || !Permissions.canDeleteActorFromFace()) return;
+      new ConfirmDeleteDialog({
+        message: game.i18n.format("a-spark-in-fate-core.ConfirmDeleteActor", { name: face.name }),
+        onConfirm: async () => {
+          try {
+            const deleted = await deleteFateActor(face.actorId);
+            if (!deleted) {
+              ui.notifications.warn(game.i18n.localize("a-spark-in-fate-core.ActorNotFound"));
+              return;
+            }
+            await updateState(s => {
+              const f = s.faces.find(x => x.id === id);
+              if (f) f.actorId = null;
+              return s;
+            });
+            ui.notifications.info(game.i18n.localize("a-spark-in-fate-core.ActorDeleted"));
+            this.render(false);
+          } catch (e) {
+            ui.notifications.error(game.i18n.localize("a-spark-in-fate-core.ActorDeleteFailed"));
+          }
+        }
+      }).render(true);
     });
 
     // ── Places ──

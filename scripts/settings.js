@@ -9,6 +9,7 @@ import {
   PERM_PLACES_SETTING,
   ENABLE_FACES_SETTING,
   ENABLE_PLACES_SETTING,
+  FACE_SKILL_RANK_SETTING,
   getDefaultState
 } from "./constants.js";
 
@@ -111,6 +112,17 @@ export function registerSettings() {
     config: true,
     type: Boolean,
     default: true,
+    onChange: _refreshDashboards
+  });
+
+  game.settings.register(MODULE_ID, FACE_SKILL_RANK_SETTING, {
+    name: "a-spark-in-fate-core.FaceSkillRankName",
+    hint: "a-spark-in-fate-core.FaceSkillRankHint",
+    scope: "world",
+    config: true,
+    type: Number,
+    range: { min: 1, max: 8, step: 1 },
+    default: 5,
     onChange: _refreshDashboards
   });
 }

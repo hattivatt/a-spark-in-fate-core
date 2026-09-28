@@ -224,6 +224,7 @@
                           {{#if this.face.actorId}}
                             <button class="spark-btn small" data-action="open-actor" data-actor-id="{{this.face.actorId}}">{{localize "a-spark-in-fate-core.OpenActor"}}</button>
                             <button class="spark-btn small" data-action="update-actor" data-id="{{this.face.id}}">{{localize "a-spark-in-fate-core.UpdateActor"}}</button>
+                            <button class="spark-btn small" data-action="delete-actor" data-id="{{this.face.id}}">{{localize "a-spark-in-fate-core.DeleteActor"}}</button>
                           {{else}}
                             <button class="spark-btn small" data-action="create-actor" data-id="{{this.face.id}}">{{localize "a-spark-in-fate-core.SendToActor"}}</button>
                           {{/if}}

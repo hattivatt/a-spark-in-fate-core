@@ -2,7 +2,7 @@
   "id": "a-spark-in-fate-core",
   "title": "A Spark in Fate Core",
   "description": "Collaborative campaign setting creation dashboard for Fate Core Official, based on A Spark in Fate Core procedure.",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "authors": [
     {
       "name": "hattivatt",
@@ -49,6 +49,6 @@
     }
   ],
   "url": "https://github.com/hattivatt/a-spark-in-fate-core",
-  "manifest": "https://github.com/hattivatt/a-spark-in-fate-core/releases/download/1.1.1/module.json",
-  "download": "https://github.com/hattivatt/a-spark-in-fate-core/releases/download/1.1.1/module.zip"
+  "manifest": "https://github.com/hattivatt/a-spark-in-fate-core/releases/download/1.2.0/module.json",
+  "download": "https://github.com/hattivatt/a-spark-in-fate-core/releases/download/1.2.0/module.zip"
 }

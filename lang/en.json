@@ -99,8 +99,11 @@
     "SendToActor": "Send to Actor",
     "OpenActor": "Open Character Sheet",
     "UpdateActor": "Update Character",
+    "DeleteActor": "Delete Actor",
     "ActorCreated": "Actor created and linked.",
     "ActorUpdated": "Actor updated.",
+    "ActorDeleted": "Actor deleted.",
+    "ActorDeleteFailed": "Failed to delete actor.",
     "ActorNotFound": "Actor not found.",
     "NoFace": "No face yet.",
     "PlacesSection": "Places",
@@ -135,6 +138,7 @@
     "ConfirmDeleteSpark": "Delete this spark?",
     "ConfirmDeleteSparkInIssue": "This spark is used in an issue. Deleting it will clear the issue. Continue?",
     "ConfirmDeleteFace": "Delete this face?",
+    "ConfirmDeleteActor": "Delete actor \"{name}\"? This cannot be undone.",
     "ConfirmDeletePlace": "Delete this place?",
     "CannotAddMedia": "You cannot add more media.",
     "NoFactsRemaining": "You have no remaining facts to set.",
@@ -157,6 +161,8 @@
     "EnableFacesName": "Enable Faces stage",
     "EnableFacesHint": "If disabled, the Faces tab is hidden from the dashboard, and faces no longer appear on the Overview tab or in the print export.",
     "EnablePlacesName": "Enable Places stage",
-    "EnablePlacesHint": "If disabled, the Places tab is hidden from the dashboard, and places no longer appear on the Overview tab or in the print export."
+    "EnablePlacesHint": "If disabled, the Places tab is hidden from the dashboard, and places no longer appear on the Overview tab or in the print export.",
+    "FaceSkillRankName": "Face Main Skill Level",
+    "FaceSkillRankHint": "Rank assigned to the face's main skill when creating or updating the actor."
   }
 }

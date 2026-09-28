@@ -2,6 +2,14 @@
  * Adapter for integrating with Fate Core Official system.
  */
 
+import { MODULE_ID, FACE_SKILL_RANK_SETTING } from "./constants.js";
+
+const DEFAULT_FACE_SKILL_RANK = 5;
+
+function getFaceSkillRank() {
+  return game.settings.get(MODULE_ID, FACE_SKILL_RANK_SETTING) || DEFAULT_FACE_SKILL_RANK;
+}
+
 export function getFateCoreWorldDataItem() {
   if (typeof fcoConstants !== "undefined" && fcoConstants.wd) {
     try {
@@ -69,6 +77,12 @@ export async function createFateActor({ name, img, description, mainSkill, aspec
     type: "fate-core-official",
     img: img || "icons/svg/mystery-man.svg",
     ownership: perm,
+    // Link the prototype token so the created actor is a linked character token.
+    prototypeToken: {
+      actorLink: true,
+      name,
+      texture: { src: img || "icons/svg/mystery-man.svg" }
+    },
     system: {
       details: {
         description: { value: description || "" }
@@ -107,7 +121,7 @@ export async function createFateActor({ name, img, description, mainSkill, aspec
     const skillData = skillEntry
       ? foundry.utils.duplicate(skillEntry)
       : { name: mainSkill, category: "", description: "", overcome: "", caa: "", attack: "", defend: "", pc: true, rank: 1 };
-    skillData.rank = 1;
+    skillData.rank = getFaceSkillRank();
     await actor.update({ [`system.skills.${skillKey}`]: skillData });
   }
 
@@ -153,9 +167,9 @@ export async function updateFateActor(actorId, { name, img, description, mainSki
       : { name: mainSkill, category: "", description: "", overcome: "", caa: "", attack: "", defend: "", pc: true, rank: 1 };
     const existingSkill = fcoConstants.gbn(actor.system.skills, mainSkill);
     if (existingSkill) {
-      skillData.rank = existingSkill.rank || 1;
+      skillData.rank = existingSkill.rank || getFaceSkillRank();
     } else {
-      skillData.rank = 1;
+      skillData.rank = getFaceSkillRank();
     }
     await actor.update({ [`system.skills.${skillKey}`]: skillData });
   }
@@ -170,4 +184,11 @@ export async function openActorSheet(actorId) {
     return;
   }
   actor.sheet.render(true);
+}
+
+export async function deleteFateActor(actorId) {
+  const actor = game.actors.get(actorId);
+  if (!actor) return false;
+  await actor.delete();
+  return true;
 }
