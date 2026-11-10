@@ -2,6 +2,12 @@
 
 Foundry VTT module: collaborative "A Spark in Fate Core" setting-creation dashboard. Plain ES modules loaded by Foundry — **no package.json, no build, no tests, no lint config**. Verification is manual: run inside a Foundry v13/v14 world with the `fate-core-official` system installed. Don't add JS tooling unless asked.
 
+## Development environment
+
+- The devenv files (`devenv.nix`, `devenv.yaml`, `devenv.lock`) live at the repository root. Run `devenv shell` from there.
+- The environment provides Node.js, git, jq, zip, rsync, ripgrep, fd, and watchexec. It deliberately has no npm install step: there is no `package.json` and no JS build.
+- `.devenv/` is generated and ignored; never commit it.
+
 ## Structure & entrypoint
 
 - `module.json` — manifest; entry is `scripts/main.js` (registers settings, Handlebars helpers, scene control button, `CONFIG.queries` handler).

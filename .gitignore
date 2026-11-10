@@ -1,0 +1,9 @@
+.devenv/
+.direnv/
+node_modules/
+_staging/
+module.zip
+.DS_Store
+*.log
+.idea/
+.vscode/
